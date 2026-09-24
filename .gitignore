@@ -1,0 +1,23 @@
+# Ignore everything by default. Only source code and the dependency manifest
+# are intended to be committed from this research workspace.
+*
+
+# Repository metadata and the two permitted project documents.
+!.gitignore
+!requirements.txt
+!README.md
+
+# Permit Python source files at any directory depth.
+!*/
+!*.py
+
+# Keep local environments, secrets, caches, notebooks, captures, datasets,
+# reports, references, and temporary files ignored.
+.venv/
+.matplotlib/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.env
+temp.txt
+

@@ -1,0 +1,15 @@
+# PDF/reference extraction
+pypdf==6.19.0
+
+# Data preparation and analysis
+pandas==3.0.6
+matplotlib==3.11.2
+seaborn==0.13.2
+scikit-learn==1.9.1
+
+# Collection helpers and configuration
+requests==2.34.2
+python-dotenv==1.2.3
+
+# Exploratory notebooks
+jupyterlab==4.6.4
