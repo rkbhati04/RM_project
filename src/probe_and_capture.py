@@ -53,17 +53,31 @@ def uri_for(protocol: str, host: str, path: str) -> tuple[str, list[str]]:
 
 def find_tool(name: str, wireshark_dir: str, explicit: str | None = None) -> str:
     if explicit:
-        if Path(explicit).is_file():
-            return explicit
+        p = Path(explicit)
+        if p.is_file():
+            return str(p.resolve())
         sys.exit(f"{name} not found at {explicit}")
-    found = shutil.which(name) or shutil.which(name, path=wireshark_dir)
-    if not found:
-        # PATH entries saved with surrounding quotes work in PowerShell but not in Python
-        dirs = [d.strip().strip('"') for d in os.environ.get("PATH", "").split(os.pathsep)]
-        found = shutil.which(name, path=os.pathsep.join(dirs))
+    # Check local workspace bin/
+    local_bin = ROOT / "bin" / name
+    if local_bin.is_file():
+        return str(local_bin.resolve())
+    # Check standard which
+    found = shutil.which(name)
+    if found:
+        return found
+    # Check common install locations across macOS, Linux, and Windows
+    search_dirs = [wireshark_dir, "/opt/homebrew/bin", "/usr/local/bin", r"C:\Program Files\Wireshark"]
+    for d in search_dirs:
+        if d and Path(d).is_dir():
+            cand = shutil.which(name, path=d)
+            if cand:
+                return cand
+    dirs = [d.strip().strip('"') for d in os.environ.get("PATH", "").split(os.pathsep)]
+    found = shutil.which(name, path=os.pathsep.join(dirs))
     if not found:
         sys.exit(f"Cannot find {name}. Pass its full path (--q-path) or fix PATH.")
     return found
+
 
 
 def resolve_ips(host: str) -> list[str]:
@@ -95,9 +109,11 @@ def capture_one(dumpcap, q, iface, bpf, uri, extra, domain, pcap, seconds, warmu
     time.sleep(warmup)  # let dumpcap start listening
     t0 = time.time()
     note = ""
+    # Strip any HTTP proxy environment variables so q queries resolvers directly over the network interface
+    q_env = {k: v for k, v in os.environ.items() if "proxy" not in k.lower()}
     try:
         r = subprocess.run([q, domain, "A", f"@{uri}", *extra], capture_output=True,
-                           text=True, timeout=20)
+                           text=True, timeout=20, env=q_env)
         rc, latency = r.returncode, time.time() - t0
         if rc != 0:
             note = (r.stderr or r.stdout).strip().replace("\n", " ")[:200]
@@ -129,8 +145,10 @@ def load_done(manifest: Path, max_latency: float) -> set[str]:
 
 
 def main() -> int:
+    default_iface = "en0" if sys.platform == "darwin" else "Wi-Fi"
+    default_ws = "/opt/homebrew/bin" if sys.platform == "darwin" and Path("/opt/homebrew/bin").is_dir() else r"C:\Program Files\Wireshark"
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--iface", required=True, help='dumpcap interface NAME, e.g. "Wi-Fi" (numbers can change)')
+    ap.add_argument("--iface", default=default_iface, help=f'dumpcap interface NAME (default: {default_iface})')
     ap.add_argument("--network", default="airtel")
     ap.add_argument("--workload", default="global", choices=["global", "india", "both"])
     ap.add_argument("--domain", help="single domain (default: first line of the workload file)")
@@ -144,8 +162,8 @@ def main() -> int:
                     help="queries slower than this are marked 'incomplete' (the fixed capture "
                          "window may have cut them off). Default: capture-seconds - warmup - 0.5")
     ap.add_argument("--resume", action="store_true", help="skip captures already complete in the manifest")
-    ap.add_argument("--wireshark-dir", default=r"C:\Program Files\Wireshark")
-    ap.add_argument("--q-path", help=r"full path to q.exe, e.g. C:\Program Files\Q\q.exe")
+    ap.add_argument("--wireshark-dir", default=default_ws)
+    ap.add_argument("--q-path", help=r"full path to q executable (defaults to ./bin/q or PATH)")
     args = ap.parse_args()
 
     dumpcap = find_tool("dumpcap", args.wireshark_dir)

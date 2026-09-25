@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import csv
 import ipaddress
+import os
 import shutil
 import statistics as st
 import subprocess
@@ -29,7 +30,17 @@ LABELS = ["network", "resolver", "protocol", "workload", "domain", "repeat", "pc
 
 
 def find_tshark(wireshark_dir: str) -> str:
-    found = shutil.which("tshark") or shutil.which("tshark", path=wireshark_dir)
+    found = shutil.which("tshark")
+    if found:
+        return found
+    search_dirs = [wireshark_dir, "/opt/homebrew/bin", "/usr/local/bin", r"C:\Program Files\Wireshark"]
+    for d in search_dirs:
+        if d and Path(d).is_dir():
+            cand = shutil.which("tshark", path=d)
+            if cand:
+                return cand
+    dirs = [d.strip().strip('"') for d in os.environ.get("PATH", "").split(os.pathsep)]
+    found = shutil.which("tshark", path=os.pathsep.join(dirs))
     if not found:
         sys.exit("Cannot find tshark. Pass --wireshark-dir.")
     return found
