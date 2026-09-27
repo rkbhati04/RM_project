@@ -1,0 +1,9 @@
+task,model,n,majority_baseline,accuracy,acc_sd_over_seeds,macro_f1
+3-way DoH/DoH3/DoQ,rf,2271,0.3347,0.9818,0.0013,0.9818
+3-way DoH/DoH3/DoQ,xgb,2271,0.3347,0.9893,0.0023,0.9893
+DoH3 vs DoQ,rf,1513,0.5023,0.9736,0.0014,0.9736
+DoH3 vs DoQ,xgb,1513,0.5023,0.9795,0.003,0.9795
+"3-way, Quad9 only",rf,1193,0.3336,0.9955,0.0008,0.9955
+"3-way, Quad9 only",xgb,1193,0.3336,0.9941,0.0014,0.9941
+"3-way, AdGuard only",rf,1078,0.3358,0.9725,0.0027,0.9724
+"3-way, AdGuard only",xgb,1078,0.3358,0.9774,0.0009,0.9774

@@ -1,0 +1,9 @@
+train,test,task,model,n_test,accuracy,ci95,macro_f1
+adguard,quad9,3-way protocol id,rf,1193,0.7904,0.766-0.813,0.7763
+adguard,quad9,3-way protocol id,xgb,1193,0.7234,0.697-0.748,0.7125
+quad9,adguard,3-way protocol id,rf,324,0.7068,0.655-0.754,0.5824
+quad9,adguard,3-way protocol id,xgb,324,0.7068,0.655-0.754,0.5666
+adguard+quad9,google,DoH vs DoH3 (unseen resolver),rf,298,0.9933,0.976-0.998,0.9933
+adguard+quad9,google,DoH vs DoH3 (unseen resolver),xgb,298,1.0,0.987-1.000,1.0
+adguard+quad9,cloudflare,DoH vs DoH3 (unseen resolver),rf,179,1.0,0.979-1.000,1.0
+adguard+quad9,cloudflare,DoH vs DoH3 (unseen resolver),xgb,179,0.9609,0.921-0.981,0.9248

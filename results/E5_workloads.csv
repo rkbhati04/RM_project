@@ -1,0 +1,10 @@
+analysis,resolver,protocol,slice,n,accuracy,ci95_lo,ci95_hi,chance,p_value
+workload classification (unseen domains),quad9,doh,global vs india,397,0.4761,0.4274,0.5252,0.5013,
+workload classification (unseen domains),quad9,doh3,global vs india,398,0.5226,0.4736,0.5712,0.5025,
+workload classification (unseen domains),quad9,doq,global vs india,398,0.4849,0.4362,0.5339,0.5025,
+domain fingerprinting,quad9,doh,global,199,0.5075,0.4386,0.5762,0.0367,0.0909
+domain fingerprinting,quad9,doh3,global,200,0.125,0.0861,0.178,0.038,0.0909
+domain fingerprinting,quad9,doq,global,200,0.385,0.3203,0.454,0.0395,0.0909
+domain fingerprinting,quad9,doh,india,198,0.4293,0.3623,0.4989,0.0444,0.0909
+domain fingerprinting,quad9,doh3,india,198,0.1667,0.1212,0.2248,0.0434,0.0909
+domain fingerprinting,quad9,doq,india,198,0.3636,0.2998,0.4326,0.0298,0.0909
