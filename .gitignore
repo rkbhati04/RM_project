@@ -11,8 +11,9 @@
 !*/
 !*.py
 
-# Keep local environments, secrets, caches, notebooks, captures, datasets,
-# reports, references, and temporary files ignored.
+# Keep local environments, secrets, caches, notebooks, reports, references,
+# and temporary files ignored. The checked-in data snapshot is explicitly
+# allowed below for the requested GitHub upload.
 .venv/
 .matplotlib/
 __pycache__/
@@ -20,4 +21,8 @@ __pycache__/
 .ipynb_checkpoints/
 .env
 temp.txt
+
+# Project data snapshot.
+!data/
+!data/**
 

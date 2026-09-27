@@ -1,0 +1,26 @@
+{
+  "created_at_utc": "2026-09-24T07:36:30.179754+00:00",
+  "tranco_list_id": "L5PV4",
+  "tranco_url": "https://tranco-list.eu/list/L5PV4",
+  "pool_size_requested": 1000000,
+  "pool_size_downloaded": 1000000,
+  "requested_domains_per_workload": 25,
+  "resolution_filter_applied": true,
+  "india_definition": "domains ending in .in, plus INDIA_SEED_DOMAINS, in Tranco rank order",
+  "india_seed_domains": [
+    "flipkart.com",
+    "hotstar.com",
+    "indiatimes.com",
+    "jio.com",
+    "myntra.com",
+    "paytm.com",
+    "phonepe.com",
+    "swiggy.com",
+    "tatacliq.com",
+    "zomato.com"
+  ],
+  "global_file": "global.txt",
+  "global_sha256": "c6a9be1b1da02b992d39e0c30bee055bd7c8dd4a9dd716c7c324e6902de47d52",
+  "india_file": "india.txt",
+  "india_sha256": "6a68b60aac2cce56e48ac0d23c9e60afd6182f5466dbec3c00b81cade4b387ad"
+}

@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import csv
 import os
+import random
 import shutil
 import socket
 import subprocess
@@ -161,6 +162,9 @@ def main() -> int:
     ap.add_argument("--max-latency", type=float,
                     help="queries slower than this are marked 'incomplete' (the fixed capture "
                          "window may have cut them off). Default: capture-seconds - warmup - 0.5")
+    ap.add_argument("--shuffle-from", type=int, default=None,
+                    help="randomize the capture order (domain x resolver x protocol) for repeats >= N, "
+                         "so a domain is not always captured at the same point of a pass (order control)")
     ap.add_argument("--resume", action="store_true", help="skip captures already complete in the manifest")
     ap.add_argument("--wireshark-dir", default=default_ws)
     ap.add_argument("--q-path", help=r"full path to q executable (defaults to ./bin/q or PATH)")
@@ -192,13 +196,13 @@ def main() -> int:
     res_info = {r: (RESOLVERS[r][0], RESOLVERS[r][1], resolve_ips(RESOLVERS[r][0])) for r in args.resolvers}
 
     # Repeat is the OUTER loop, so every batch spreads over time of day evenly.
-    jobs = [
-        (rep, wl, dom, res, proto)
-        for rep in range(args.repeats)
-        for wl, dom in targets
-        for res in args.resolvers
-        for proto in args.protocols
-    ]
+    jobs = []
+    for rep in range(args.repeats):
+        block = [(rep, wl, dom, res, proto)
+                 for wl, dom in targets for res in args.resolvers for proto in args.protocols]
+        if args.shuffle_from is not None and rep >= args.shuffle_from:
+            random.Random(1000 + rep).shuffle(block)  # fixed seed per repeat: reproducible
+        jobs += block
     stats: dict[tuple[str, str], list[int]] = {}
     start = time.time()
     with manifest.open("a", newline="", encoding="utf-8") as mf:
