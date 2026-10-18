@@ -35,19 +35,22 @@ This project implements a controlled, reproducible closed-world measurement test
 ## 3. Project Structure
 
 ```
-├── README.md                 <- Project overview, methodology, and empirical results
+├── README.md                 <- Project overview, methodology, and reproduction guide
 ├── requirements.txt          <- Python dependency specifications
+├── .gitignore                <- Excludes raw captures, datasets, documents, and local caches
 ├── src/
 │   ├── build_workloads.py    <- Generates pinned Tranco L5PV4 Global and Indian domain lists
 │   ├── probe_and_capture.py  <- Timed packet capture testbed (q DNS client + dumpcap)
 │   ├── extract_features.py   <- Extracts 39 transport-agnostic metadata features from PCAPs
-│   ├── run_experiments.py    <- ML evaluation suite (E1 to E5 with RF & XGBoost)
+│   ├── run_experiments.py    <- Rapid ML evaluation runner (RQ1-RQ3 on DoH/3)
+│   ├── doh3_rq123_analysis.py<- Full RQ1-RQ3 evaluation & statistical reporting for DoH/3
+│   ├── rq123_analysis.py     <- Entry point alias for DoH/3 evaluation
+│   ├── analysis_v2.py        <- Comprehensive multi-protocol (DoH/DoH3/DoQ) study (E1-E5)
+│   ├── feature_signal.py     <- Feature signal-to-noise & ANOVA ranking utility
+│   ├── data_status.py        <- Quick dataset status & capture counter utility
 │   └── plot_results.py       <- Generates publication-ready figures in results/
-├── data/
-│   ├── workloads/            <- Frozen domain lists (global.txt, india.txt, metadata.json)
-│   ├── raw/                  <- PCAP captures and capture manifest.csv
-│   └── processed/            <- Extracted feature table (dataset.csv)
-└── results/                  <- Generated confusion matrices, accuracy plots, and evaluation tables
+├── data/                     <- Generated locally during reproduction (excluded by .gitignore)
+└── results/                  <- Output metrics, confusion matrices, and figures (local)
 ```
 
 ---
@@ -87,7 +90,7 @@ The pipeline supports both **macOS (Apple Silicon / Intel)** and **Windows**.
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate        # On Windows: .\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt numpy pandas xgboost
+pip install -r requirements.txt
 ```
 
 #### 2. External Tools
@@ -127,7 +130,14 @@ python3 src/extract_features.py --max-latency 1.5
 
 #### Step 4: Run Machine Learning Experiments
 ```bash
+# Rapid DoH/3 evaluation (RQ1, RQ2, RQ3):
 python3 src/run_experiments.py
+
+# Full DoH/3 statistical evaluation and markdown report generation:
+python3 src/doh3_rq123_analysis.py --quick
+
+# Multi-protocol baseline study (E1-E5 across DoH, DoH/3, and DoQ):
+python3 src/analysis_v2.py --quick
 ```
 
 #### Step 5: Generate Publication Figures
