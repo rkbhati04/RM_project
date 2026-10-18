@@ -32,8 +32,7 @@ RESOLVERS = {
     "cloudflare": ("cloudflare-dns.com", "/dns-query"),
     "google": ("dns.google", "/dns-query"),
     "quad9": ("dns.quad9.net", "/dns-query"),
-}
-PROTOCOLS = ("doh", "doh3", "doq")
+PROTOCOLS = ("doh3", "doh", "doq")
 
 MANIFEST_FIELDS = [
     "timestamp", "network", "resolver", "protocol", "workload", "domain",
@@ -155,7 +154,7 @@ def main() -> int:
     ap.add_argument("--domain", help="single domain (default: first line of the workload file)")
     ap.add_argument("--all-domains", action="store_true", help="capture every domain in the workload(s)")
     ap.add_argument("--resolvers", nargs="+", default=list(RESOLVERS))
-    ap.add_argument("--protocols", nargs="+", default=list(PROTOCOLS))
+    ap.add_argument("--protocols", nargs="+", default=["doh3"], help="protocols to capture (default: doh3)")
     ap.add_argument("--repeats", type=int, default=1)
     ap.add_argument("--capture-seconds", type=int, default=3)
     ap.add_argument("--warmup", type=float, default=1.0)
