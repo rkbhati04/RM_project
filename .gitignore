@@ -1,32 +1,43 @@
-# Ignore everything by default. Only source code and the dependency manifest
-# are intended to be committed from this research workspace.
-*
-
-# Repository metadata and the two permitted project documents.
-!.gitignore
-!requirements.txt
-!README.md
-
-# Permit Python source files at any directory depth.
-!*/
-!*.py
-
-# Keep local environments, secrets, caches, notebooks, and temporary files
-# ignored. The checked-in data and results snapshots are explicitly allowed
-# below for the requested GitHub upload.
-.venv/
-.matplotlib/
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter Notebook checkpoints
 .ipynb_checkpoints/
+
+# Local cache & IDE configurations
+.matplotlib/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables & secrets
 .env
+.env.*
+
+# Temporary, scratch, and log files
 temp.txt
+*.log
+*.tmp
 
-# Project data snapshot.
-!data/
-!data/**
+# Documents, roadmaps, speeches, presentations, and research papers
+# (Kept locally for research reference, excluded from public repository)
+docs/
+Progress/
+notebooks/
+*.pdf
+*.pptx
+Project_topic.png
 
-# Experiment results snapshot.
-!results/
-!results/**
-
+# Experimental datasets and raw packet captures
+# (Excluded to protect local data, comply with privacy safeguards, and maintain a lightweight repository)
+data/
+results/
