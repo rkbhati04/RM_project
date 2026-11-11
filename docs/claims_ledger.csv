@@ -1,9 +1,17 @@
 claim_id,text,value,ci_low,ci_high,source_file,script,commit
-FP-1,Domain fingerprinting accuracy for adguard/doh,0.2613111726685134,0.2229884382161447,0.3137968406555629,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
-FP-2,Domain fingerprinting accuracy for adguard/doh3,0.0414364640883977,0.0211048195206426,0.0604649090176099,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
-FP-3,Domain fingerprinting accuracy for cloudflare/doh,0.1014492753623188,0.059934265459584,0.2124595314916086,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
-FP-4,Domain fingerprinting accuracy for cloudflare/doh3,0.0906801007556675,0.0683721412095191,0.1258232716418416,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
-FP-5,Domain fingerprinting accuracy for google/doh,0.1670843776106934,0.1412631557677399,0.2158042374706942,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
-FP-6,Domain fingerprinting accuracy for google/doh3,0.0906801007556675,0.0640723003167248,0.1201441083594205,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
-FP-7,Domain fingerprinting accuracy for quad9/doh,0.3224181360201512,0.2855439178968996,0.3776646911895823,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
-FP-8,Domain fingerprinting accuracy for quad9/doh3,0.1231155778894472,0.087777183654413,0.1507287350956616,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-1,Domain fingerprinting accuracy for adguard/doh,0.2793333333333334,0.2530532224981304,0.3086306128798815,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-2,Domain fingerprinting accuracy for adguard/doh3,0.0803333333333333,0.0674547633799281,0.1017368700411215,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-3,Domain fingerprinting accuracy for cloudflare/doh,0.2124579124579124,0.1839460397969918,0.234472348002432,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-4,Domain fingerprinting accuracy for cloudflare/doh3,0.0535353535353535,0.0438153017032232,0.0727441178260056,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-5,Domain fingerprinting accuracy for google/doh,0.1693333333333333,0.1517619648232723,0.1987331730550543,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-6,Domain fingerprinting accuracy for google/doh3,0.1686666666666666,0.1414036246157246,0.1871757050315026,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-7,Domain fingerprinting accuracy for quad9/doh,0.3473333333333333,0.3142281076483857,0.372973538507741,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-8,Domain fingerprinting accuracy for quad9/doh3,0.0406666666666666,0.0269610246804528,0.0505826834105447,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-9,Domain fingerprinting accuracy for adguard/doh,0.2187739463601532,0.1889303696054633,0.2434610386314528,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-10,Domain fingerprinting accuracy for adguard/doh3,0.096078431372549,0.0762731529113978,0.1156144290475978,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-11,Domain fingerprinting accuracy for cloudflare/doh,0.2094276094276094,0.1887552298053624,0.239725123603068,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-12,Domain fingerprinting accuracy for cloudflare/doh3,0.0543333333333333,0.0407463084223393,0.0686749389138938,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-13,Domain fingerprinting accuracy for google/doh,0.1393333333333333,0.1245345849304702,0.168182513065867,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-14,Domain fingerprinting accuracy for google/doh3,0.122,0.1003748681868801,0.1405412285359494,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-15,Domain fingerprinting accuracy for quad9/doh,0.3138047138047138,0.2850110746589515,0.3426961978078077,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+FP-16,Domain fingerprinting accuracy for quad9/doh3,0.0435374149659864,0.030987459648404,0.056263984079936,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
