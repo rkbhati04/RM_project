@@ -1,0 +1,54 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Local cache & IDE configurations
+.matplotlib/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables & secrets
+.env
+.env.*
+
+# Temporary, scratch, and log files
+temp.txt
+*.log
+*.tmp
+
+# Documents, roadmaps, speeches, presentations, and research papers
+# Project documentation is versioned; private source papers and presentations remain local.
+Progress/
+notebooks/
+*.pdf
+*.pptx
+Project_topic.png
+
+# Experimental datasets and raw packet captures
+# (Excluded to protect local data, comply with privacy safeguards, and maintain a lightweight repository)
+# Data: ignore everything by default, then whitelist small, shareable files
+data/*
+!data/README.md
+!data/workloads/
+!data/raw/
+data/raw/*
+!data/raw/manifest_pilot_v1.csv
+!data/processed/
+data/processed/*
+!data/processed/dataset.csv
+results/
+*.pcap
+*.pcapng
+

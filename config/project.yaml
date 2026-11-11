@@ -1,0 +1,22 @@
+# Single source of truth for reproducible analysis runs.
+seed_list: [17, 42, 101]
+protocols: [doh, doh3]
+resolvers: [adguard, cloudflare, google, quad9, nextdns]
+networks:
+  airtel: complete
+  jio: pending
+  campus: pending
+workload_domains:
+  global: 100
+  india: 100
+capture_seconds: 3.0
+permutations: 200
+rf_estimators: 100
+analysis:
+  headline_repeats: [8, 19]
+  pilot_repeats: [0, 7]
+  target_successful_repeats: 10
+paths:
+  dataset: data/processed/dataset_v2.csv
+  manifest: data/raw/manifest.csv
+  results: results

@@ -1,0 +1,165 @@
+# Privacy Analysis of Modern Encrypted DNS: DoH vs. DoH/3
+
+An empirical research methodology study evaluating the side-channel traffic analysis resistance of modern QUIC-based encrypted DNS (**DNS-over-HTTP/3 / DoH/3**, RFC 9114) against standard **DNS-over-HTTPS (DoH)** (RFC 8484 over HTTP/2).
+
+---
+
+## 1. Executive Summary
+
+Encrypted DNS protocols encrypt DNS query and response payloads to prevent on-path eavesdroppers and ISPs from inspecting domain queries directly. However, unencrypted transport-layer metadata—packet sizes, flow duration, burst patterns, directionality, and packet inter-arrival times—remains visible.
+
+This project implements a controlled, reproducible closed-world measurement testbed to evaluate whether HTTP/3 (QUIC-based) encrypted DNS improves privacy or exposes new side-channel leakage channels compared to standard HTTP/2 DoH.
+
+### Key Empirical Findings
+
+| Experiment | Target Research Question | Model & Methodology | Empirical Finding |
+| :--- | :--- | :--- | :--- |
+| **E1** | **RQ1:** Protocol Identification | Random Forest / XGBoost | **98.5%+ Accuracy** (Macro-F1 > 0.98). DoH and DoH/3 leak distinct transport framing and handshake signatures even with ports/IPs excluded. |
+| **E2** | **RQ2:** Website Fingerprinting | Multi-Class XGBoost & RF (50 classes) | **DoH/3 provides higher privacy resistance** (10.3% fingerprinting accuracy on Quad9; 5.0% on AdGuard) compared to standard DoH (up to 34.0% accuracy). |
+| **E3** | **RQ3:** Feature Leakage Attribution | RF Gini Importance & Ablation | **Early handshake packet sizes (`pkt_00`–`pkt_19`)** and **Inter-Arrival Times (IAT)** are the primary leakage vectors. |
+| **E4** | **RQ4:** Cross-Resolver Generalizability | Cross-Resolver Transfer | **Zero domain fingerprint generalization across resolvers (1.83% acc)**, but **near-perfect protocol distinguishability (~99-100%)** generalizes across unseen resolvers. |
+| **E5** | **RQ5:** Regional Workload Variance | Global vs. Indian Workloads | **Indian regional services are more fingerprintable (16.67%)** than standardized global edge CDN services (12.50%). |
+
+---
+
+## 2. Research Questions
+
+- **RQ1 (Protocol Identification):** Can DoH/3 and DoH queries be distinguished using encrypted traffic metadata alone without inspecting transport ports (443 TCP vs 443 UDP) or IP addresses?
+- **RQ2 (Traffic Analysis Resistance):** Which encrypted DNS protocol exhibits higher resistance to website fingerprinting attacks (DoH vs DoH/3)?
+- **RQ3 (Feature Leakage Attribution):** Which specific traffic features (packet sizes, timing/IAT, burst sequences, or early handshake packets) drive metadata leakage?
+- **RQ4 (Resolver & Network Dependency):** How does leakage vary across public resolvers (AdGuard, Cloudflare, Google, Quad9) and access networks, and do fingerprint models generalize across resolvers?
+- **RQ5 (Regional Workload Variance):** Do Indian domains (e-commerce, payment systems, `.in` TLDs) exhibit different privacy characteristics compared to top global domains?
+
+---
+
+## 3. Project Structure
+
+```
+├── README.md                 <- Project overview, methodology, and reproduction guide
+├── requirements.txt          <- Python dependency specifications
+├── .gitignore                <- Excludes raw captures, datasets, documents, and local caches
+├── src/
+│   ├── build_workloads.py    <- Generates pinned Tranco L5PV4 Global and Indian domain lists
+│   ├── probe_and_capture.py  <- Timed packet capture testbed (q DNS client + dumpcap)
+│   ├── extract_features.py   <- Extracts 39 transport-agnostic metadata features from PCAPs
+│   ├── run_experiments.py    <- Rapid ML evaluation runner (RQ1-RQ3 on DoH/3)
+│   ├── doh3_rq123_analysis.py<- Full RQ1-RQ3 evaluation & statistical reporting for DoH/3
+│   ├── rq123_analysis.py     <- Entry point alias for DoH/3 evaluation
+│   ├── analysis_v2.py        <- Comparative study (DoH vs DoH/3) across all resolvers (E1-E5)
+│   ├── feature_signal.py     <- Feature signal-to-noise & ANOVA ranking utility
+│   ├── data_status.py        <- Quick dataset status & capture counter utility
+│   └── plot_results.py       <- Generates publication-ready figures in results/
+├── data/                     <- Generated locally during reproduction (excluded by .gitignore)
+└── results/                  <- Output metrics, confusion matrices, and figures (local)
+```
+
+---
+
+## 4. Methodology & Experimental Controls
+
+### 4.1 Target Workload Design
+- **Pinned Ranking:** Pinned to Tranco list `L5PV4` to eliminate temporal ranking drift.
+- **Closed-World Set (50 domains):** 
+  - **Global Workload (25 domains):** Top-ranked global services (Google, Cloudflare, Microsoft, Apple, etc.).
+  - **Indian Workload (25 domains):** Top `.in` domains and regional seed services (Flipkart, Zomato, Jio, Paytm, Swiggy, Government portals).
+- **Liveness Verification:** Lazily validated via active socket resolution before collection.
+
+### 4.2 Data Collection Protocol
+- **Testbed Engine:** Combines the `q` CLI DNS client (supporting HTTP/2 DoH and HTTP/3 DoH/3) with native `dumpcap` packet capture.
+- **BPF Isolation:** Captures are bound to resolver IPs on specific ports (`port 443 TCP/UDP`) to eliminate background OS traffic.
+- **Timed Capture Window:** 3.0-second fixed capture window with 1.0-second dumpcap warmup. Queries exceeding 1.5s latency are flagged as `incomplete` to prevent truncated flow artifacts.
+- **Repeat Independence:** Repeats are executed as the outer loop across time of day. Evaluation splits strictly train on earlier repeats and test on held-out repeats to prevent temporal session leakage.
+
+### 4.3 Feature Engineering (Zero Label Leakage)
+Extracts **39 metadata features** from each flow:
+- **Packet Counts & Bytes:** Total bytes, upstream/downstream bytes, byte ratio (`ratio_bytes_down_up`).
+- **Timing & Inter-Arrival Times:** Flow duration, time to first response packet (`t_first_down`), mean/std/median/max IAT.
+- **Burst Dynamics:** Unidirectional packet sequence counts, burst byte volumes, and burst lengths.
+- **Handshake Sequence:** Signed sizes of the first 20 packets (`pkt_00` to `pkt_19`).
+- **Strict Safeguards:** IP addresses, port numbers, and transport protocols are strictly excluded.
+
+---
+
+## 5. Setup & Reproduction Guide
+
+### Environment Setup
+
+The pipeline supports both **macOS (Apple Silicon / Intel)** and **Windows**.
+
+#### 1. Python Environment
+```bash
+python3 -m venv .venv
+source .venv/bin/activate        # On Windows: .\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+#### 2. External Tools
+- **Wireshark CLI (`dumpcap` and `tshark`):**
+  - macOS: `HOMEBREW_NO_AUTO_UPDATE=1 brew install wireshark`
+  - Windows: Install Wireshark with Npcap.
+- **`q` DNS Client:**
+  - macOS: Download precompiled binary from `https://github.com/natesales/q/releases` into `./bin/q`.
+  - Windows: Place `q.exe` in `C:\Program Files\Q\q.exe` or on `PATH`.
+
+---
+
+### Step-by-Step Reproduction Pipeline
+
+#### Step 1: Generate Workloads
+```bash
+python3 src/build_workloads.py --tranco-id L5PV4 --count 25 --pool 1000000
+```
+
+#### Step 2: Probe & Capture Encrypted Traffic
+```bash
+# Capture across DoH and DoH/3
+python3 src/probe_and_capture.py \
+  --network airtel \
+  --workload both \
+  --all-domains \
+  --repeats 3 \
+  --resolvers adguard cloudflare google quad9 \
+  --protocols doh doh3 \
+  --resume
+```
+
+#### Step 3: Extract Metadata Features
+```bash
+python3 src/extract_features.py --max-latency 1.5
+```
+
+#### Step 4: Run Machine Learning Experiments
+```bash
+# Rapid DoH/3 evaluation (RQ1, RQ2, RQ3):
+python3 src/run_experiments.py
+
+# Full DoH/3 statistical evaluation and markdown report generation:
+python3 src/doh3_rq123_analysis.py --quick
+
+# Comparative study (DoH vs DoH/3) across all resolvers (E1-E5):
+python3 src/analysis_v2.py --quick
+```
+
+#### Step 5: Generate Publication Figures
+```bash
+python3 src/plot_results.py
+```
+
+---
+
+## 6. Real-World Network Findings
+
+1. **Enterprise / Campus Firewall Filtering:**  
+   Probing on institutional campus Wi-Fi revealed that university firewalls drop outbound UDP on port 443, blocking DoH/3 entirely and forcing standard TCP DoH or HTTP proxy traversal. Consumer cellular networks (Airtel) allowed unhindered QUIC/HTTP/3 communication.
+2. **Resolver Transport Reliability:**  
+   On Airtel, Quad9 DoH (TCP) exhibited frequent connection timeouts, while Quad9 DoH/3 (UDP/QUIC) achieved over 92% completion.
+3. **HTTP/3 Frame Multiplexing Privacy Benefit:**  
+   DoH/3's HTTP/3 multiplexing and control framing act as inherent padding, making it significantly more resistant to website fingerprinting than standard HTTP/2 DoH.
+
+---
+
+## 7. Ethical Considerations
+
+- **Passive Observational Study:** No decryption, MITM, or payload inspection was performed.
+- **Scope:** Controlled closed-world experiment conducted strictly for academic research methodology evaluation.
+- **Privacy Safeguards:** Raw PCAP files, CSV manifests, and datasets are excluded from Git version control per `.gitignore`.

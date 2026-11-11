@@ -1,0 +1,20 @@
+# Data processing and analysis
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1
+PyYAML==6.0.2
+
+# Machine learning & modeling
+scikit-learn==1.5.2
+xgboost==2.1.2
+
+# Visualization
+matplotlib==3.9.2
+seaborn==0.13.2
+
+# Network requests & utilities
+requests>=2.28.0
+python-dotenv>=1.0.0
+
+# Reference & documentation extraction
+pypdf>=3.0.0

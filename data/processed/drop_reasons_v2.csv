@@ -1,0 +1,11 @@
+pcap_path,reason,detail
+data\raw\overnight_runs\20261109_230331_22448\pcaps\airtel_adguard_doh_global_registrar-servers.com_17.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_global_cloudflare.com_2.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_global_google.com_1.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_global_wikipedia.org_0.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_india_eci.gov.in_2.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_india_goodreturns.in_2.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_india_goodreturns.in_5.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_india_karnataka.gov.in_2.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_india_rajasthan.gov.in_2.pcap,too_few_packets,
+data\raw\pcaps\airtel_cloudflare_doh_india_wb.gov.in_0.pcap,too_few_packets,
