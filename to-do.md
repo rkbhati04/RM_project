@@ -2,6 +2,38 @@
 
 Combined checklist for the remaining project work.
 
+## Current handover context
+
+- Current branch: `main`.
+- Airtel live checks, top-up processing, dataset recomputation, and core WP3-WP6 analysis are complete.
+- Final Airtel dataset: `data/processed/dataset_v2.csv` with 18,926 feature rows.
+- Airtel report: `results/airtel_topup_20261113/REPORT.md`.
+- Airtel analysis table: `results/airtel_topup_20261113/rq1_rq2_fingerprinting.csv` with 16 slices.
+- Airtel baselines: `results/airtel_topup_20261113/baselines.csv`.
+- Claims ledger: `docs/claims_ledger.csv` with 16 Airtel entries.
+- No Airtel hotspot is needed for local analysis.
+- Imported Airtel raw PCAPs remain untracked in `airtel_T0_raw_20261111/` and must not be committed.
+- Campus work is out of scope.
+
+### Defined Airtel analysis command
+
+Run from the repository root:
+
+```bash
+./scripts/run_airtel_analysis.sh --skip-advanced
+```
+
+For a faster exploratory run:
+
+```bash
+./scripts/run_airtel_analysis.sh --quick --skip-advanced
+```
+
+The runner executes the core Airtel pipeline plus WP7, WP10, and WP11. WP7
+reports packet-size and post-handshake n-grams; true burst n-grams are not
+reported because the processed dataset contains burst aggregates rather than
+the original burst sequences.
+
 ## Airtel work completed
 
 - [x] Install or locate `q` and run the eight serialized live checks.
