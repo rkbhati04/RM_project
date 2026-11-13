@@ -7,7 +7,7 @@ Combined checklist for the remaining work on the `handover` branch.
 - [x] Install or locate `q` and run the eight serialized live checks.
 - [x] Save the live-check JSON outputs under `docs/live_checks/`.
 - [x] Update `docs/LIVE_CHECKS.md` with answer/CNAME parity, extra records, and EDNS0 padding findings.
-- [ ] Run the final Airtel top-up pass for failed and slow captures.
+- [x] Run the final Airtel top-up pass for failed and slow captures. Imported run evidence: 20,262 manifest rows covering 19,200 unique capture keys, including 1,062 retries.
 - [ ] Recompute the final Airtel dataset, drop reasons, domain-set policy, and success-rate summaries.
 - [ ] Complete the Airtel integrity reset and verify that all headline results use the agreed seeds, 200 permutations, and target repeat policy.
 

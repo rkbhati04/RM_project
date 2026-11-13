@@ -58,7 +58,7 @@ Version: updated 2026-11-10 from the completed Airtel capture state.
 | Item | Status |
 |---|---|
 | Airtel T0 capture (4 resolvers x DoH/DoH3 x 200 domains x repeats 8-19) | Complete: 19,200/19,200 rows |
-| Top-up pass(es) for failed or slow captures | Not run; 344 retry candidates identified |
+| Top-up pass(es) for failed or slow captures | Imported T0 run includes 1,062 retry rows across 19,200 unique capture keys; 789 retries recovered to `ok`, with 273 still non-`ok` |
 | Consolidated manifest and `dataset_v2.csv` | Consolidated manifest: 22,400 rows; dataset: 20,934 rows; 10 dropped for too few packets |
 | Final domain set after the k policy | Global 84 and India 40 at k=10; k=8 would keep Global 98 and India 64; India is below 60% at k=10 |
 | WP1 integrity reset | Complete in code; final verification pending |
