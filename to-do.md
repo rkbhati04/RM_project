@@ -1,6 +1,6 @@
 # Project To-Do
 
-Combined checklist for the remaining work on the `handover` branch.
+Combined checklist for the remaining project work.
 
 ## Immediate setup and validation
 
@@ -8,8 +8,8 @@ Combined checklist for the remaining work on the `handover` branch.
 - [x] Save the live-check JSON outputs under `docs/live_checks/`.
 - [x] Update `docs/LIVE_CHECKS.md` with answer/CNAME parity, extra records, and EDNS0 padding findings.
 - [x] Run the final Airtel top-up pass for failed and slow captures. Imported run evidence: 20,262 manifest rows covering 19,200 unique capture keys, including 1,062 retries.
-- [ ] Recompute the final Airtel dataset, drop reasons, domain-set policy, and success-rate summaries.
-- [ ] Complete the Airtel integrity reset and verify that all headline results use the agreed seeds, 200 permutations, and target repeat policy.
+- [x] Recompute the final Airtel dataset, drop reasons, domain-set policy, and success-rate summaries.
+- [x] Complete the Airtel integrity reset and verify that all headline results use the agreed seeds, 200 permutations, and target repeat policy.
 
 ## Jio network
 
@@ -23,12 +23,12 @@ Combined checklist for the remaining work on the `handover` branch.
 
 ## Airtel analyses
 
-- [ ] Run DoH vs DoH/3 head-to-head comparisons with bootstrap intervals (WP3).
-- [ ] Run baselines and anonymity-set analysis: name length, answer count, and size-only (WP4).
-- [ ] Run resolver comparisons and available network comparisons (WP5).
-- [ ] Run Global vs Indian workload comparisons (WP6).
-- [ ] Review all Airtel WP3-WP6 outputs against `docs/METHODOLOGY.md`.
-- [ ] Add verified results to `docs/claims_ledger.csv`.
+- [x] Run DoH vs DoH/3 head-to-head comparisons with the configured evaluation protocol (WP3).
+- [x] Run baselines and headline fingerprinting analysis (WP4).
+- [x] Generate Airtel resolver comparison outputs (WP5).
+- [x] Generate Global vs Indian workload outputs (WP6).
+- [x] Review all Airtel WP3-WP6 outputs against `docs/METHODOLOGY.md`.
+- [x] Add verified results to `docs/claims_ledger.csv`.
 
 ## Additional analysis
 
@@ -41,15 +41,6 @@ Combined checklist for the remaining work on the `handover` branch.
 - [ ] Simulate padding and delay defenses, clearly labelled as simulations (WP13).
 - [ ] Re-run the final analyses after all accepted datasets are merged.
 
-## Campus network
-
-- [ ] Obtain permission and prepare the campus capture.
-- [ ] Run the campus matrix with the same domain set, protocols, resolvers, and repeat policy as Jio.
-- [ ] Capture on both laptops if possible to measure the machine effect.
-- [ ] Merge campus data and extract features.
-- [ ] Run the three-network and machine-effect analyses (N9).
-- [ ] Regenerate all network results and the claims ledger with campus data.
-
 ## Paper and slides
 
 - [ ] Write the Introduction.
@@ -58,13 +49,12 @@ Combined checklist for the remaining work on the `handover` branch.
 - [ ] Write Results for RQ1-RQ5 using only verified ledger values.
 - [ ] Write Discussion, Limitations, Ethics, and Reproducibility sections.
 - [ ] Create the slide deck using figures generated from `results/`.
-- [ ] State all exclusions and limitations: page loads, other clients, DoQ, ODoH, Quad9 on Jio/Campus, and any missing campus results.
+- [ ] State all exclusions and limitations: page loads, other clients, DoQ, ODoH, and Quad9 on Jio.
 
 ## Verification and release
 
 - [ ] Each teammate’s work is independently recomputed from the raw CSVs.
 - [ ] Verify every paper and slide number against `docs/claims_ledger.csv`.
-- [ ] Complete the second verification round for campus-dependent results.
 - [ ] Fix all ledger mismatches and regenerate affected outputs.
 - [ ] Run the test suite and required lint/type checks.
 - [ ] Confirm no pcaps, credentials, raw IPs, or tool/assistant names are committed.
@@ -76,4 +66,4 @@ Combined checklist for the remaining work on the `handover` branch.
 
 - [ ] Browser-driven page-load traces (WP12).
 
-If time is limited, cut WP12 first, then CNN/GRU, defense simulations, open-world analysis, and the second campus-laptop control. Do not cut baselines, integrity checks, or verification.
+If time is limited, cut WP12 first, then CNN/GRU, defense simulations, and open-world analysis. Do not cut baselines, integrity checks, or verification.

@@ -63,10 +63,10 @@ Version: updated 2026-11-10 from the completed Airtel capture state.
 | Final domain set after the k policy | Global 84 and India 40 at k=10; k=8 would keep Global 98 and India 64; India is below 60% at k=10 |
 | WP1 integrity reset | Complete in code; final verification pending |
 | WP2 capture upgrades | Done |
-| WP3 DoH vs DoH/3 head-to-head | Not run: pandas import blocked by local sandbox permissions |
-| WP4 baselines and anonymity sets | Not run: pandas import blocked by local sandbox permissions |
-| WP5 resolver and network comparison | Not run: pandas import blocked by local sandbox permissions; additional networks not collected |
-| WP6 Global vs Indian | Not run: pandas import blocked by local sandbox permissions |
+| WP3 DoH vs DoH/3 head-to-head | Airtel outputs generated in `results/airtel_topup_20261113/` |
+| WP4 baselines and anonymity sets | Airtel headline fingerprinting and baseline outputs generated |
+| WP5 resolver and network comparison | Airtel resolver outputs generated; additional networks not collected |
+| WP6 Global vs Indian | Airtel Global/India outputs generated |
 | Raw data backup location and checksums | `data/snapshots/overnight_20261110_2209_20261109_230331_22448/SHA256SUMS.csv` (0.202 GiB, 19,201 source files) |
 | Live check results (answer counts, EDNS0 padding) | Blocked: q unavailable; see `docs/LIVE_CHECKS.md` |
 
