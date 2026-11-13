@@ -12,7 +12,7 @@ Combined checklist for the remaining project work.
 - Airtel baselines: `results/airtel_topup_20261113/baselines.csv`.
 - Claims ledger: `docs/claims_ledger.csv` with 16 Airtel entries.
 - No Airtel hotspot is needed for local analysis.
-- Imported Airtel raw PCAPs remain untracked in `airtel_T0_raw_20261111/` and must not be committed.
+- Imported Airtel raw PCAPs remain untracked under `data/raw/airtel_T0_raw_20261111/` and must not be committed.
 - Campus work is out of scope.
 
 ### Defined Airtel analysis command

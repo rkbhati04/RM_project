@@ -22,6 +22,7 @@ ENV/
 # Environment variables & secrets
 .env
 .env.*
+.DS_Store
 
 # Temporary, scratch, and log files
 temp.txt
@@ -52,4 +53,5 @@ results/
 *.pcap
 *.pcapng
 docs/live_checks/*.json
+airtel_T0_raw_*/
 
