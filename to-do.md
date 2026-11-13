@@ -4,9 +4,9 @@ Combined checklist for the remaining work on the `handover` branch.
 
 ## Immediate setup and validation
 
-- [ ] Install or locate `q` and run the eight serialized live checks.
-- [ ] Save the live-check JSON outputs under `docs/live_checks/`.
-- [ ] Update `docs/LIVE_CHECKS.md` with answer/CNAME parity, extra records, and EDNS0 padding findings.
+- [x] Install or locate `q` and run the eight serialized live checks.
+- [x] Save the live-check JSON outputs under `docs/live_checks/`.
+- [x] Update `docs/LIVE_CHECKS.md` with answer/CNAME parity, extra records, and EDNS0 padding findings.
 - [ ] Run the final Airtel top-up pass for failed and slow captures.
 - [ ] Recompute the final Airtel dataset, drop reasons, domain-set policy, and success-rate summaries.
 - [ ] Complete the Airtel integrity reset and verify that all headline results use the agreed seeds, 200 permutations, and target repeat policy.

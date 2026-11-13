@@ -1,12 +1,23 @@
 # Live q checks
 
-Status: **blocked on 2026-11-10**.
+Status: **complete on 2026-11-13**.
 
-The capture machine was quiet and the overnight run was complete, but the
-installed `q` executable was not available on `PATH` and no `q.exe` was found
-in the repository. Therefore the eight required `google.com` checks (four
-resolvers x HTTP/2 and HTTP/3) were not run, and no raw JSON files were
-created.
+The eight required `google.com` checks were run serially with q 0.19.12.
+Raw outputs are stored locally under `docs/live_checks/`:
+
+| Resolver | HTTP/2 | HTTP/3 | Answer-count parity | CNAMEs | EDNS0 padding option |
+| --- | ---: | ---: | --- | --- | --- |
+| AdGuard | 1 | 1 | Match | None | Not exposed |
+| Cloudflare | 6 | 6 | Match | None | Not exposed |
+| Google | 6 | 1 | Mismatch | None | Not exposed |
+| Quad9 | 6 | 6 | Match | None | Not exposed |
+
+All queries completed successfully. The Google answer-count mismatch is a
+single live observation and is not evidence of a protocol effect: resolver
+answer selection and cache state can vary. TTLs and returned IP addresses also
+varied between queries. The response OPT sections exposed EDNS0 but no padding
+option in any of the eight outputs, so `padding_present` is **not observed** in
+this check. This does not prove that padding is absent from every query.
 
 Required follow-up, one query at a time:
 
@@ -17,6 +28,5 @@ q google.com A @https://dns.adguard-dns.com/dns-query --opt --http3 --format=jso
 
 Repeat the two commands for `cloudflare-dns.com`, `dns.google`, and
 `dns.quad9.net`, pausing between commands. Compare answer, CNAME, query
-contents, extra record types, and response OPT options. Until those files are
-available, `padding_present` remains `unknown`; packet-size multiples are not
-evidence of EDNS0 padding.
+contents, extra record types, and response OPT options. Packet-size multiples
+are not evidence of EDNS0 padding.

@@ -51,4 +51,5 @@ data/processed/*
 results/
 *.pcap
 *.pcapng
+docs/live_checks/*.json
 
