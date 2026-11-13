@@ -15,3 +15,115 @@ FP-13,Domain fingerprinting accuracy for google/doh,0.1393333333333333,0.1245345
 FP-14,Domain fingerprinting accuracy for google/doh3,0.122,0.1003748681868801,0.1405412285359494,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
 FP-15,Domain fingerprinting accuracy for quad9/doh,0.3138047138047138,0.2850110746589515,0.3426961978078077,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
 FP-16,Domain fingerprinting accuracy for quad9/doh3,0.0435374149659864,0.030987459648404,0.056263984079936,rq1_rq2_fingerprinting.csv,python -m encdns analyze,unrecorded
+WP7-AD-DOH-GLO-BASE,WP7 fingerprinting accuracy for adguard/doh/global with BASE,0.267239,0.242963,0.293001,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH-GLO-NGRAM,WP7 fingerprinting accuracy for adguard/doh/global with NGRAM,0.247734,0.224129,0.272949,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH-GLO-NGRAM+POST,WP7 fingerprinting accuracy for adguard/doh/global with NGRAM+POST,0.248229,0.224607,0.273459,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH-GLO-POST_HS,WP7 fingerprinting accuracy for adguard/doh/global with POST_HS,0.266744,0.242484,0.292493,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH-IND-BASE,WP7 fingerprinting accuracy for adguard/doh/india with BASE,0.218211,0.194937,0.243423,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH-IND-NGRAM,WP7 fingerprinting accuracy for adguard/doh/india with NGRAM,0.208599,0.185751,0.233452,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH-IND-NGRAM+POST,WP7 fingerprinting accuracy for adguard/doh/india with NGRAM+POST,0.197556,0.175222,0.221971,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH-IND-POST_HS,WP7 fingerprinting accuracy for adguard/doh/india with POST_HS,0.19786,0.175512,0.222288,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-GLO-BASE,WP7 fingerprinting accuracy for adguard/doh3/global with BASE,0.0875,0.0728,0.104833,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-GLO-NGRAM,WP7 fingerprinting accuracy for adguard/doh3/global with NGRAM,0.1005,0.084742,0.118807,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-GLO-NGRAM+POST,WP7 fingerprinting accuracy for adguard/doh3/global with NGRAM+POST,0.1045,0.088435,0.123089,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-GLO-POST_HS,WP7 fingerprinting accuracy for adguard/doh3/global with POST_HS,0.0895,0.074631,0.106989,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-IND-BASE,WP7 fingerprinting accuracy for adguard/doh3/india with BASE,0.086009,0.070952,0.103903,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-IND-NGRAM,WP7 fingerprinting accuracy for adguard/doh3/india with NGRAM,0.099411,0.083213,0.118355,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-IND-NGRAM+POST,WP7 fingerprinting accuracy for adguard/doh3/india with NGRAM+POST,0.11015,0.093109,0.129864,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-AD-DOH3-IND-POST_HS,WP7 fingerprinting accuracy for adguard/doh3/india with POST_HS,0.09575,0.079853,0.114417,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-GLO-BASE,WP7 fingerprinting accuracy for cloudflare/doh/global with BASE,0.213648,0.191354,0.237776,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-GLO-NGRAM,WP7 fingerprinting accuracy for cloudflare/doh/global with NGRAM,0.239704,0.216367,0.264707,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-GLO-NGRAM+POST,WP7 fingerprinting accuracy for cloudflare/doh/global with NGRAM+POST,0.241234,0.21784,0.266285,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-GLO-POST_HS,WP7 fingerprinting accuracy for cloudflare/doh/global with POST_HS,0.214143,0.191828,0.238289,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-IND-BASE,WP7 fingerprinting accuracy for cloudflare/doh/india with BASE,0.190946,0.16963,0.214248,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-IND-NGRAM,WP7 fingerprinting accuracy for cloudflare/doh/india with NGRAM,0.213079,0.190765,0.237239,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-IND-NGRAM+POST,WP7 fingerprinting accuracy for cloudflare/doh/india with NGRAM+POST,0.231728,0.20865,0.256531,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH-IND-POST_HS,WP7 fingerprinting accuracy for cloudflare/doh/india with POST_HS,0.209057,0.186916,0.233068,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-GLO-BASE,WP7 fingerprinting accuracy for cloudflare/doh3/global with BASE,0.045624,0.035186,0.058969,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-GLO-NGRAM,WP7 fingerprinting accuracy for cloudflare/doh3/global with NGRAM,0.069697,0.056605,0.085541,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-GLO-NGRAM+POST,WP7 fingerprinting accuracy for cloudflare/doh3/global with NGRAM+POST,0.057174,0.045382,0.071799,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-GLO-POST_HS,WP7 fingerprinting accuracy for cloudflare/doh3/global with POST_HS,0.049154,0.038284,0.062909,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-IND-BASE,WP7 fingerprinting accuracy for cloudflare/doh3/india with BASE,0.055595,0.043979,0.070055,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-IND-NGRAM,WP7 fingerprinting accuracy for cloudflare/doh3/india with NGRAM,0.063621,0.051141,0.078892,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-IND-NGRAM+POST,WP7 fingerprinting accuracy for cloudflare/doh3/india with NGRAM+POST,0.063113,0.050686,0.078335,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-CL-DOH3-IND-POST_HS,WP7 fingerprinting accuracy for cloudflare/doh3/india with POST_HS,0.052608,0.041331,0.066747,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-GLO-BASE,WP7 fingerprinting accuracy for google/doh/global with BASE,0.1575,0.137986,0.1792,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-GLO-NGRAM,WP7 fingerprinting accuracy for google/doh/global with NGRAM,0.1755,0.155022,0.198049,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-GLO-NGRAM+POST,WP7 fingerprinting accuracy for google/doh/global with NGRAM+POST,0.182,0.161195,0.204835,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-GLO-POST_HS,WP7 fingerprinting accuracy for google/doh/global with POST_HS,0.164,0.144128,0.186017,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-IND-BASE,WP7 fingerprinting accuracy for google/doh/india with BASE,0.146,0.127151,0.167109,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-IND-NGRAM,WP7 fingerprinting accuracy for google/doh/india with NGRAM,0.183,0.162145,0.205878,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-IND-NGRAM+POST,WP7 fingerprinting accuracy for google/doh/india with NGRAM+POST,0.1825,0.16167,0.205356,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH-IND-POST_HS,WP7 fingerprinting accuracy for google/doh/india with POST_HS,0.155,0.135627,0.176575,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-GLO-BASE,WP7 fingerprinting accuracy for google/doh3/global with BASE,0.1685,0.148387,0.190729,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-GLO-NGRAM,WP7 fingerprinting accuracy for google/doh3/global with NGRAM,0.2005,0.178818,0.224093,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-GLO-NGRAM+POST,WP7 fingerprinting accuracy for google/doh3/global with NGRAM+POST,0.184,0.163096,0.206921,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-GLO-POST_HS,WP7 fingerprinting accuracy for google/doh3/global with POST_HS,0.1765,0.155971,0.199094,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-IND-BASE,WP7 fingerprinting accuracy for google/doh3/india with BASE,0.104,0.087973,0.122554,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-IND-NGRAM,WP7 fingerprinting accuracy for google/doh3/india with NGRAM,0.1275,0.10981,0.147567,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-IND-NGRAM+POST,WP7 fingerprinting accuracy for google/doh3/india with NGRAM+POST,0.1175,0.100489,0.136952,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-GO-DOH3-IND-POST_HS,WP7 fingerprinting accuracy for google/doh3/india with POST_HS,0.108,0.091673,0.126829,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-GLO-BASE,WP7 fingerprinting accuracy for quad9/doh/global with BASE,0.339,0.312768,0.366259,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-GLO-NGRAM,WP7 fingerprinting accuracy for quad9/doh/global with NGRAM,0.3255,0.299582,0.352532,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-GLO-NGRAM+POST,WP7 fingerprinting accuracy for quad9/doh/global with NGRAM+POST,0.3375,0.311302,0.364735,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-GLO-POST_HS,WP7 fingerprinting accuracy for quad9/doh/global with POST_HS,0.343,0.31668,0.370322,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-IND-BASE,WP7 fingerprinting accuracy for quad9/doh/india with BASE,0.301732,0.276304,0.328439,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-IND-NGRAM,WP7 fingerprinting accuracy for quad9/doh/india with NGRAM,0.306273,0.28072,0.333074,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-IND-NGRAM+POST,WP7 fingerprinting accuracy for quad9/doh/india with NGRAM+POST,0.294705,0.269474,0.321259,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH-IND-POST_HS,WP7 fingerprinting accuracy for quad9/doh/india with POST_HS,0.304837,0.279323,0.331608,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-GLO-BASE,WP7 fingerprinting accuracy for quad9/doh3/global with BASE,0.041298,0.031354,0.054218,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-GLO-NGRAM,WP7 fingerprinting accuracy for quad9/doh3/global with NGRAM,0.046859,0.036201,0.060458,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-GLO-NGRAM+POST,WP7 fingerprinting accuracy for quad9/doh3/global with NGRAM+POST,0.050387,0.0393,0.064392,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-GLO-POST_HS,WP7 fingerprinting accuracy for quad9/doh3/global with POST_HS,0.042301,0.032224,0.055347,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-IND-BASE,WP7 fingerprinting accuracy for quad9/doh3/india with BASE,0.033027,0.024147,0.045022,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-IND-NGRAM,WP7 fingerprinting accuracy for quad9/doh3/india with NGRAM,0.050775,0.039506,0.06504,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-IND-NGRAM+POST,WP7 fingerprinting accuracy for quad9/doh3/india with NGRAM+POST,0.04346,0.03311,0.056855,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP7-QU-DOH3-IND-POST_HS,WP7 fingerprinting accuracy for quad9/doh3/india with POST_HS,0.04553,0.034912,0.05918,wp7_results.csv,python src/wp7_richer_features.py,ad1c655
+WP11-FWD-AD-DOH,WP11 cross-time transfer (Pilot->T0) accuracy for adguard/doh,0.021739,0.013259,0.038295,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP11-FWD-AD-DOH3,WP11 cross-time transfer (Pilot->T0) accuracy for adguard/doh3,0.041012,0.026894,0.059511,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP11-FWD-CL-DOH,WP11 cross-time transfer (Pilot->T0) accuracy for cloudflare/doh,0.037951,0.026208,0.060148,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP11-FWD-CL-DOH3,WP11 cross-time transfer (Pilot->T0) accuracy for cloudflare/doh3,0.060833,0.042239,0.080047,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP11-FWD-GO-DOH,WP11 cross-time transfer (Pilot->T0) accuracy for google/doh,0.019167,0.011477,0.03463,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP11-FWD-GO-DOH3,WP11 cross-time transfer (Pilot->T0) accuracy for google/doh3,0.035,0.024337,0.054892,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP11-FWD-QU-DOH,WP11 cross-time transfer (Pilot->T0) accuracy for quad9/doh,0.021044,0.011593,0.034977,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP11-FWD-QU-DOH3,WP11 cross-time transfer (Pilot->T0) accuracy for quad9/doh3,0.074783,0.059001,0.103118,time_stability.csv,python src/ku3_scaling_and_stability.py,4f0406e
+WP8-CNN-AD-DOH,WP8 1D-CNN accuracy on raw packet sizes for adguard/doh,0.0116,0.0069,0.0209,wp8_models.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP8-CNN-AD-DOH3,WP8 1D-CNN accuracy on raw packet sizes for adguard/doh3,0.0108,0.0062,0.0196,wp8_models.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP8-CNN-GO-DOH,WP8 1D-CNN accuracy on raw packet sizes for google/doh,0.0092,0.0047,0.017,wp8_models.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP8-CNN-GO-DOH3,WP8 1D-CNN accuracy on raw packet sizes for google/doh3,0.0075,0.0041,0.0157,wp8_models.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP8-CNN-QU-DOH,WP8 1D-CNN accuracy on raw packet sizes for quad9/doh,0.01,0.0054,0.0183,wp8_models.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP8-CNN-QU-DOH3,WP8 1D-CNN accuracy on raw packet sizes for quad9/doh3,0.0119,0.0069,0.0209,wp8_models.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP9-ROCAUC-ADGUARD_DOH,WP9 open-world ROC-AUC for adguard_doh,0.7495,,,open_world_summary.json,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP9-ROCAUC-ADGUARD_DOH3,WP9 open-world ROC-AUC for adguard_doh3,0.5553,,,open_world_summary.json,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP9-ROCAUC-QUAD9_DOH,WP9 open-world ROC-AUC for quad9_doh,0.8267,,,open_world_summary.json,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP9-ROCAUC-QUAD9_DOH3,WP9 open-world ROC-AUC for quad9_doh3,0.5986,,,open_world_summary.json,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH-UNMITIG,WP13 simulated unmitigated accuracy for adguard/doh,0.2798,0.2531,0.3086,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH-SIM_PAD,WP13 simulated sim_pad128 accuracy for adguard/doh,0.2245,0.2002,0.2519,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH-SIM_PAD,WP13 simulated sim_pad468 accuracy for adguard/doh,0.2165,0.1926,0.2436,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH-SIM_JIT,WP13 simulated sim_jitter20ms accuracy for adguard/doh,0.2653,0.2386,0.2932,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH-SIM_COM,WP13 simulated sim_combined accuracy for adguard/doh,0.2091,0.1849,0.2353,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH3-UNMITIG,WP13 simulated unmitigated accuracy for adguard/doh3,0.0741,0.0594,0.0919,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH3-SIM_PAD,WP13 simulated sim_pad128 accuracy for adguard/doh3,0.0624,0.0487,0.0787,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH3-SIM_PAD,WP13 simulated sim_pad468 accuracy for adguard/doh3,0.0541,0.0416,0.0698,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH3-SIM_JIT,WP13 simulated sim_jitter20ms accuracy for adguard/doh3,0.0874,0.0711,0.1061,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-AD-DOH3-SIM_COM,WP13 simulated sim_combined accuracy for adguard/doh3,0.0632,0.0495,0.0798,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH-UNMITIG,WP13 simulated unmitigated accuracy for quad9/doh,0.3538,0.325,0.3841,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH-SIM_PAD,WP13 simulated sim_pad128 accuracy for quad9/doh,0.3012,0.2734,0.3301,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH-SIM_PAD,WP13 simulated sim_pad468 accuracy for quad9/doh,0.2874,0.2598,0.3158,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH-SIM_JIT,WP13 simulated sim_jitter20ms accuracy for quad9/doh,0.3589,0.3299,0.3892,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH-SIM_COM,WP13 simulated sim_combined accuracy for quad9/doh,0.2988,0.2714,0.3281,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH3-UNMITIG,WP13 simulated unmitigated accuracy for quad9/doh3,0.0401,0.0295,0.054,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH3-SIM_PAD,WP13 simulated sim_pad128 accuracy for quad9/doh3,0.0299,0.0211,0.0425,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH3-SIM_PAD,WP13 simulated sim_pad468 accuracy for quad9/doh3,0.0263,0.0178,0.0378,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH3-SIM_JIT,WP13 simulated sim_jitter20ms accuracy for quad9/doh3,0.0477,0.0364,0.0631,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-QU-DOH3-SIM_COM,WP13 simulated sim_combined accuracy for quad9/doh3,0.0298,0.0211,0.0425,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH-UNMITIG,WP13 simulated unmitigated accuracy for google/doh,0.169,0.147,0.1935,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH-SIM_PAD,WP13 simulated sim_pad128 accuracy for google/doh,0.1191,0.1004,0.1405,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH-SIM_PAD,WP13 simulated sim_pad468 accuracy for google/doh,0.1107,0.093,0.132,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH-SIM_JIT,WP13 simulated sim_jitter20ms accuracy for google/doh,0.1624,0.1405,0.1861,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH-SIM_COM,WP13 simulated sim_combined accuracy for google/doh,0.1398,0.1199,0.1629,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH3-UNMITIG,WP13 simulated unmitigated accuracy for google/doh3,0.1765,0.1536,0.2008,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH3-SIM_PAD,WP13 simulated sim_pad128 accuracy for google/doh3,0.1557,0.1348,0.1798,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH3-SIM_PAD,WP13 simulated sim_pad468 accuracy for google/doh3,0.139,0.1189,0.1618,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH3-SIM_JIT,WP13 simulated sim_jitter20ms accuracy for google/doh3,0.1774,0.1546,0.2019,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+WP13-GO-DOH3-SIM_COM,WP13 simulated sim_combined accuracy for google/doh3,0.1524,0.1311,0.1756,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
