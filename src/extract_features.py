@@ -1,9 +1,9 @@
 """Turn captured pcaps into one feature row per query -> data/processed/dataset.csv
 
 Uses only the standard library plus tshark (Wireshark). Features are built from
-packet SIZES, TIMING, DIRECTION and BURSTS only. Ports, IPs and the transport
-protocol are deliberately NOT features: DoQ uses UDP/853 while DoH/3 uses
-UDP/443, so a port would give the label away and prove nothing about leakage.
+packet SIZES, TIMING, DIRECTION and BURSTS only. Ports, IPs and transport
+identifiers are deliberately NOT features, ensuring the model learns pure
+side-channel traffic metadata leakage without trivial shortcuts.
 
 Example:
     python src\\extract_features.py
@@ -14,11 +14,13 @@ from __future__ import annotations
 import argparse
 import csv
 import ipaddress
+import json
 import os
 import shutil
 import statistics as st
 import subprocess
 import sys
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from collections import Counter
 from pathlib import Path
 
@@ -46,13 +48,16 @@ def find_tshark(wireshark_dir: str) -> str:
     return found
 
 
-def read_packets(tshark: str, pcap: Path) -> list[tuple[float, int, str]]:
+def read_packets(tshark: str, pcap: Path, timeout: float = 20.0) -> list[tuple[float, int, str]]:
     """Return [(relative_time, frame_len, src_ip)] for every packet."""
-    out = subprocess.run(
+    completed = subprocess.run(
         [tshark, "-r", str(pcap), "-T", "fields", "-E", "separator=,", "-E", "occurrence=f",
          "-e", "frame.time_relative", "-e", "frame.len", "-e", "ip.src", "-e", "ipv6.src"],
-        capture_output=True, text=True,
-    ).stdout
+        capture_output=True, text=True, timeout=timeout,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(completed.stderr.strip()[:200] or "tshark failed")
+    out = completed.stdout
     pkts = []
     for line in out.splitlines():
         parts = line.split(",")
@@ -128,14 +133,55 @@ def compute_features(pkts: list[tuple[float, int, str]], server_ips: set[str]) -
     return feats
 
 
-def load_manifest(path: Path) -> list[dict]:
+def load_manifest(path: Path) -> tuple[list[dict], list[dict[str, str]]]:
     """Newest row per pcap wins (a pcap that was re-captured is overwritten on disk),
     then only successful captures are kept."""
     latest: dict[str, dict] = {}
+    drops: list[dict[str, str]] = []
     with path.open(newline="", encoding="utf-8") as f:
-        for row in csv.DictReader(f):
+        reader = csv.reader(f)
+        header = next(reader, [])
+        if len(header) != len(set(header)):
+            raise ValueError("Manifest has duplicate column names")
+        for line_number, values in enumerate(reader, 2):
+            if len(values) != len(header):
+                drops.append({"pcap_path": "", "reason": "incomplete_manifest_row",
+                              "detail": f"line {line_number}: {len(values)} fields; expected {len(header)}"})
+                continue
+            row = dict(zip(header, values))
             latest[row["pcap_path"]] = row
-    return [r for r in latest.values() if r.get("status") == "ok"]
+    return [r for r in latest.values()
+            if r.get("status") == "ok" and r.get("batch", "").lower() != "smoke"], drops
+
+
+def process_capture(item: tuple[dict, str, float, float, Path]) -> dict:
+    row, tshark, timeout, max_latency, data_root = item
+    pcap = data_root / row["pcap_path"].replace("\\", "/")
+    result = {"pcap_path": row["pcap_path"], "reason": "", "row": row, "features": None}
+    if not pcap.exists():
+        result["reason"] = "missing_file"
+        return result
+    if float(row.get("latency_s") or 99) > max_latency:
+        result["reason"] = "slow_query"
+        return result
+    try:
+        pkts = read_packets(tshark, pcap, timeout)
+    except subprocess.TimeoutExpired:
+        result["reason"] = "timeout"
+        return result
+    except (OSError, ValueError, RuntimeError) as exc:
+        result["reason"] = "tshark_failure"
+        result["detail"] = str(exc)[:200]
+        return result
+    if len(pkts) < 3:
+        result["reason"] = "too_few_packets"
+        return result
+    servers = {norm_ip(x) for x in row["server_ips"].split(";") if x}
+    if not any(p[2] in servers for p in pkts):
+        result["reason"] = "server_packets_missing"
+        return result
+    result["features"] = compute_features(pkts, servers)
+    return result
 
 
 def main() -> int:
@@ -146,38 +192,77 @@ def main() -> int:
     ap.add_argument("--max-latency", type=float, default=1.5,
                     help="drop queries slower than this: the fixed 3 s capture window (1 s warmup) "
                          "may have cut them off")
+    ap.add_argument("--timeout", type=float, default=20.0, help="tshark timeout per PCAP")
+    ap.add_argument("--workers", type=int, default=4, help="worker processes (2-4 recommended)")
+    ap.add_argument("--limit", type=int, help="maximum manifest PCAPs to process")
+    ap.add_argument("--cache", type=Path, help="JSON cache path; defaults beside output")
+    ap.add_argument("--drops", type=Path, help="drop-reason CSV; defaults beside output")
+    ap.add_argument("--root", type=Path, default=ROOT,
+                    help="repository root used to resolve manifest PCAP paths")
     args = ap.parse_args()
 
     tshark = find_tshark(args.wireshark_dir)
-    rows = load_manifest(args.manifest)
+    rows, manifest_drops = load_manifest(args.manifest)
+    if args.limit is not None:
+        rows = rows[:args.limit]
+    args.workers = max(2, min(args.workers, 4))
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    cache_path = args.cache or args.output.with_name(".extract_cache.json")
+    drops_path = args.drops or args.output.with_name("extract_drops.csv")
+    try:
+        cache = json.loads(cache_path.read_text(encoding="utf-8")) if cache_path.exists() else {}
+    except (OSError, json.JSONDecodeError):
+        cache = {}
 
     written, skipped = 0, Counter()
-    skipped_detail: list[str] = []
     per_group: Counter = Counter()
     pkts_by_proto: dict[str, list[int]] = {}
+    results = []
+    pending = []
+    for row in rows:
+        pcap = args.root / row["pcap_path"].replace("\\", "/")
+        key = row["pcap_path"]
+        try:
+            stat = pcap.stat()
+            cache_key = f"{key}|{stat.st_size}|{stat.st_mtime_ns}"
+        except OSError:
+            cache_key = f"{key}|missing"
+        cached = cache.get(cache_key)
+        if cached is not None:
+            results.append(cached)
+        else:
+            pending.append((row, tshark, args.timeout, args.max_latency, args.root))
+    batch_size = 500
+    with ProcessPoolExecutor(max_workers=args.workers) as pool:
+        for batch_start in range(0, len(pending), batch_size):
+            batch = pending[batch_start:batch_start + batch_size]
+            futures = [pool.submit(process_capture, item) for item in batch]
+            for future in as_completed(futures):
+                result = future.result()
+                cache_key = result["pcap_path"]
+                pcap = args.root / cache_key.replace("\\", "/")
+                try:
+                    stat = pcap.stat()
+                    cache[f"{cache_key}|{stat.st_size}|{stat.st_mtime_ns}"] = result
+                except OSError:
+                    pass
+                results.append(result)
+            print(f"Processed {min(batch_start + batch_size, len(pending))}/{len(pending)} pending PCAPs",
+                  flush=True)
+    cache_path.write_text(json.dumps(cache), encoding="utf-8")
+    drop_rows = list(manifest_drops)
+    for result in results:
+        if result.get("reason"):
+            skipped[result["reason"]] += 1
+            drop_rows.append({"pcap_path": result["pcap_path"], "reason": result["reason"],
+                              "detail": result.get("detail", "")})
     writer = None
     with args.output.open("w", newline="", encoding="utf-8") as out:
-        for i, row in enumerate(rows, 1):
-            if float(row.get("latency_s") or 99) > args.max_latency:
-                skipped["slow_query_possibly_truncated"] += 1
+        for result in results:
+            if not result.get("features"):
                 continue
-            pcap = ROOT / row["pcap_path"].replace("\\", "/")
-            if not pcap.exists():
-                skipped["missing_pcap"] += 1
-                continue
-            pkts = read_packets(tshark, pcap)
-            if len(pkts) < 3:
-                skipped["too_few_packets"] += 1
-                continue
-            servers = {norm_ip(x) for x in row["server_ips"].split(";") if x}
-            if not any(p[2] in servers for p in pkts):
-                skipped["no_server_packets"] += 1  # direction would be wrong, so skip
-                skipped_detail.append(
-                    f"{row['pcap_path']} ({row['resolver']}/{row['protocol']}, {len(pkts)} pkts) "
-                    f"sources seen: {sorted({p[2] for p in pkts})}")
-                continue
-            feats = compute_features(pkts, servers)
+            row = result["row"]
+            feats = result["features"]
             record = {k: row[k] for k in LABELS} | {"latency_s": row["latency_s"]} | feats
             if writer is None:
                 writer = csv.DictWriter(out, fieldnames=list(record))
@@ -185,15 +270,16 @@ def main() -> int:
             writer.writerow(record)
             written += 1
             per_group[(row["resolver"], row["protocol"])] += 1
-            pkts_by_proto.setdefault(row["protocol"], []).append(len(pkts))
-            if i % 100 == 0:
-                print(f"  {i}/{len(rows)} pcaps processed")
+            pkts_by_proto.setdefault(row["protocol"], []).append(feats["n_pkts"])
 
     print(f"\nWrote {written} rows to {args.output}")
     if skipped:
         print("Skipped:", dict(skipped))
-        for line in skipped_detail[:10]:
-            print("  -", line)
+    with drops_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["pcap_path", "reason", "detail"])
+        writer.writeheader()
+        writer.writerows(drop_rows)
+    print(f"Drop reasons: {drops_path}")
     print("\nRows per resolver x protocol:")
     for (res, proto), n in sorted(per_group.items()):
         print(f"  {res:10s} {proto:5s} {n}")

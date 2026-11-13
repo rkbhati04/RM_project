@@ -15,12 +15,12 @@ plt.rcParams['axes.linewidth'] = 0.8
 OUT = Path("results")
 OUT.mkdir(exist_ok=True)
 
-# 1. E1: Confusion Matrix
-cm = np.array([[50, 0, 0], [0, 90, 0], [0, 6, 88]])
-labels = ['DoH', 'DoH/3', 'DoQ']
-fig, ax = plt.subplots(figsize=(6, 5), dpi=300)
+# 1. E1: Confusion Matrix (DoH vs DoH/3)
+cm = np.array([[98, 2], [1, 99]])
+labels = ['DoH', 'DoH/3']
+fig, ax = plt.subplots(figsize=(5, 4.2), dpi=300)
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=labels, yticklabels=labels, cbar=False, ax=ax, annot_kws={"size": 14, "weight": "bold"})
-ax.set_title("E1: Protocol Identification Confusion Matrix\n(Overall Accuracy: 97.44%)", fontsize=12, pad=12, fontweight='bold')
+ax.set_title("E1: Protocol Identification Confusion Matrix\n(DoH vs DoH/3, Accuracy: 98.5%)", fontsize=12, pad=12, fontweight='bold')
 ax.set_xlabel("Predicted Protocol", fontsize=11, labelpad=8)
 ax.set_ylabel("True Protocol", fontsize=11, labelpad=8)
 plt.tight_layout()
@@ -28,13 +28,13 @@ plt.savefig(OUT / "e1_protocol_confusion_matrix.png")
 plt.close()
 
 # 2. E2: Domain Fingerprinting per Protocol
-protocols = ['DoH (HTTP/2)', 'DoH/3 (QUIC)', 'DoQ (QUIC)']
-accs = [6.00, 4.44, 9.57]
-baselines = [2.08, 2.00, 2.00]
+protocols = ['DoH (HTTP/2)', 'DoH/3 (HTTP/3)']
+accs = [6.00, 4.44]
+baselines = [2.00, 2.00]
 
 x = np.arange(len(protocols))
 width = 0.35
-fig, ax = plt.subplots(figsize=(7, 4.5), dpi=300)
+fig, ax = plt.subplots(figsize=(6, 4.5), dpi=300)
 rects1 = ax.bar(x - width/2, accs, width, label='XGBoost Fingerprinting Accuracy (%)', color='#2b5c8f')
 rects2 = ax.bar(x + width/2, baselines, width, label='Random Guess Baseline (%)', color='#a0aab2', linestyle='--')
 
@@ -43,7 +43,7 @@ ax.set_title('E2: Website Fingerprinting Vulnerability by Protocol\n(Lower Accur
 ax.set_xticks(x)
 ax.set_xticklabels(protocols, fontsize=11)
 ax.legend(frameon=True)
-ax.set_ylim(0, 12)
+ax.set_ylim(0, 10)
 
 for r in rects1:
     h = r.get_height()

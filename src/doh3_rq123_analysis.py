@@ -27,8 +27,10 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import numpy as np
 import pandas as pd
+import yaml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import f_classif
+from sklearn.inspection import permutation_importance
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.preprocessing import LabelEncoder
 
@@ -53,6 +55,20 @@ GROUPS = {
 }
 FEATS = [c for cols in GROUPS.values() for c in cols]
 GROUP_OF = {f: g for g, cols in GROUPS.items() for f in cols}
+
+
+def select_headline_data(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, str]]:
+    config = yaml.safe_load((ROOT / "config" / "project.yaml").read_text(encoding="utf-8"))
+    settings = config["analysis"]
+    start, end = settings["headline_repeats"]
+    target_k = settings["target_successful_repeats"]
+    selected = df[df["repeat"].between(start, end)].copy()
+    counts = selected.groupby("domain")["repeat"].nunique()
+    dropped = {
+        str(domain): f"{int(count)} successful repeats; required {target_k}"
+        for domain, count in counts.items() if count < target_k
+    }
+    return selected[selected["domain"].isin(set(counts[counts >= target_k].index))].copy(), dropped
 
 
 def make_model(name: str, jobs: int, n_est: int = 100):
@@ -137,7 +153,7 @@ def fingerprint_doh3(df_slice: pd.DataFrame, jobs: int, n_perm: int, cols=None, 
         X_te = d.loc[te_mask, cols].to_numpy(float)
         y_te = d.loc[te_mask, "domain"].to_numpy()
 
-        eval_out = evaluate_split(X_tr, y_tr, X_te, y_te, jobs, "xgb", n_est=n_est)
+        eval_out = evaluate_split(X_tr, y_tr, X_te, y_te, jobs, "rf", n_est=n_est)
 
         fold_accuracies.append(eval_out["accuracy"])
         fold_top5.append(eval_out["top5"])
@@ -148,7 +164,7 @@ def fingerprint_doh3(df_slice: pd.DataFrame, jobs: int, n_perm: int, cols=None, 
         # Permutation baseline logic inside the same loop
         for _ in range(n_perm):
             y_tr_shuffled = rng.permutation(y_tr)
-            p_res = evaluate_split(X_tr, y_tr_shuffled, X_te, y_te, jobs, "xgb", n_est=10)
+            p_res = evaluate_split(X_tr, y_tr_shuffled, X_te, y_te, jobs, "rf", n_est=n_est)
             perm.append(p_res["accuracy"])
 
     avg_acc = float(np.mean(fold_accuracies))
@@ -207,7 +223,7 @@ def run_rq1(doh3: pd.DataFrame, a, out_dir: Path):
     # 1. Overall DoH/3 domain fingerprinting (all resolvers)
     res_all = fingerprint_doh3(doh3, a.jobs, a.perm, n_est=a.n_est)
     if res_all:
-        is_sig = "Yes (p < 0.05)" if (res_all["accuracy"] > res_all["perm_p95"]) else "No"
+        is_sig = "Yes" if res_all["p_value"] < 0.05 else "No"
         rows.append({
             "target": "DoH/3 (All Resolvers)",
             "total_samples": res_all["n"],
@@ -229,7 +245,7 @@ def run_rq1(doh3: pd.DataFrame, a, out_dir: Path):
         slice_df = doh3[doh3.resolver == res_name]
         res_r = fingerprint_doh3(slice_df, a.jobs, a.perm, n_est=a.n_est)
         if res_r:
-            is_sig = "Yes (p < 0.05)" if (res_r["accuracy"] > res_r["perm_p95"]) else "No"
+            is_sig = "Yes" if res_r["p_value"] < 0.05 else "No"
             rows.append({
                 "target": f"DoH/3 ({res_name.title()})",
                 "total_samples": res_r["n"],
@@ -290,7 +306,7 @@ def run_rq1(doh3: pd.DataFrame, a, out_dir: Path):
 # ═══════════════════════════════════════════════════════════════════════════════
 def run_rq2(doh3: pd.DataFrame, a, out_dir: Path):
     print("\n" + "=" * 65, flush=True)
-    print("RQ2: Traffic-Analysis Resistance of DoH/3 Across Resolvers", flush=True)
+    print("RQ2: DoH/3 Domain Fingerprinting Across Resolvers", flush=True)
     print("=" * 65, flush=True)
 
     resolvers = sorted(doh3.resolver.unique())
@@ -300,8 +316,6 @@ def run_rq2(doh3: pd.DataFrame, a, out_dir: Path):
         sub = doh3[doh3.resolver == res]
         r = fingerprint_doh3(sub, a.jobs, a.perm, n_est=a.n_est)
         if r:
-            leakage_ratio = round(r["accuracy"] / max(r["perm_mean"], 0.001), 2)
-            resistance_score = max(0.0, round(100.0 * (1.0 - (r["accuracy"] - r["chance_1_over_K"]) / (1.0 - r["chance_1_over_K"])), 1))
             rows.append({
                 "resolver": res.title(),
                 "n_samples": r["n"],
@@ -313,10 +327,8 @@ def run_rq2(doh3: pd.DataFrame, a, out_dir: Path):
                 "chance_baseline": r["chance_1_over_K"],
                 "perm_p95": r["perm_p95"],
                 "p_value": r["p_value"],
-                "leakage_ratio": leakage_ratio,
-                "resistance_score_%": resistance_score,
             })
-            print(f"  {res.title():10s} | Leakage Acc: {r['accuracy']*100:.2f}% (95% CI: {r['ci95_lo']*100:.1f}%-{r['ci95_hi']*100:.1f}%) | Resistance: {resistance_score}%", flush=True)
+            print(f"  {res.title():10s} | Accuracy: {r['accuracy']*100:.2f}% (95% CI: {r['ci95_lo']*100:.1f}%-{r['ci95_hi']*100:.1f}%) | p={r['p_value']}", flush=True)
 
     rq2_df = pd.DataFrame(rows)
     rq2_df.to_csv(out_dir / "RQ2_doh3_resolver_resistance.csv", index=False)
@@ -340,12 +352,10 @@ def run_rq2(doh3: pd.DataFrame, a, out_dir: Path):
         ax.scatter(x, p95s, color="#d95f02", marker="D", s=45, zorder=5,
                    label="Permutation Chance (95th pctl)")
 
-        ax.axhline(2.0, color="gray", linestyle="--", linewidth=1.2,
-                   label="Random Guess Baseline (2.0%)")
 
         ax.set_ylabel("Fingerprinting Accuracy (%)", fontsize=11, fontweight="bold")
         ax.set_xlabel("DoH/3 Resolver Implementation", fontsize=11, fontweight="bold")
-        ax.set_title("RQ2: DoH/3 Traffic-Analysis Resistance Across Resolvers\n(Lower Accuracy = Higher Privacy Resistance)", fontsize=12, pad=10)
+        ax.set_title("RQ2: DoH/3 Domain Fingerprinting Across Resolvers", fontsize=12, pad=10)
         ax.set_xticks(x)
         ax.set_xticklabels(names, fontsize=10)
         ax.set_ylim(bottom=0, top=max(accs.max() * 1.35, 18))
@@ -378,14 +388,17 @@ def run_rq3(doh3: pd.DataFrame, a, out_dir: Path):
     le = LabelEncoder().fit(y)
     y_enc = le.transform(y)
 
-    # 1. Random Forest Mean Decrease in Impurity (MDI)
+    # MDI is retained for diagnostics only; permutation importance is the reported rank.
     rf = RandomForestClassifier(n_estimators=100, random_state=SEED, n_jobs=a.jobs)
     rf.fit(X, y_enc)
-    importances = pd.Series(rf.feature_importances_, index=FEATS).sort_values(ascending=False)
+    mdi_importances = pd.Series(rf.feature_importances_, index=FEATS)
+    perm_result = permutation_importance(rf, X, y_enc, n_repeats=10, random_state=SEED, n_jobs=a.jobs)
+    importances = pd.Series(perm_result.importances_mean, index=FEATS).sort_values(ascending=False)
 
     top20_df = importances.head(20).round(4).reset_index()
-    top20_df.columns = ["feature", "importance"]
+    top20_df.columns = ["feature", "permutation_importance"]
     top20_df["group"] = top20_df["feature"].map(GROUP_OF)
+    top20_df["mdi_importance"] = top20_df["feature"].map(mdi_importances)
     top20_df.to_csv(out_dir / "RQ3_doh3_top_features.csv", index=False)
 
     # 2. Cumulative group importance
@@ -525,14 +538,10 @@ def main():
     ap.add_argument("--dataset", type=Path, default=ROOT / "data" / "processed" / "dataset.csv")
     ap.add_argument("--out", type=Path, default=ROOT / "results" / "doh3")
     ap.add_argument("--jobs", type=int, default=-1)
-    ap.add_argument("--perm", type=int, default=10, help="permutations for empirical baseline")
+    ap.add_argument("--perm", type=int, default=200, help="permutations for empirical baseline")
     ap.add_argument("--n-est", type=int, default=100, help="number of trees")
-    ap.add_argument("--quick", action="store_true", help="fast run with fewer permutations")
+    ap.add_argument("--quick", action="store_true", help="deprecated; retains the complete configured permutation count")
     args = ap.parse_args()
-
-    if args.quick:
-        args.perm = 3
-        args.n_est = 60
 
     args.out.mkdir(parents=True, exist_ok=True)
     if not args.dataset.exists():
@@ -540,6 +549,7 @@ def main():
 
     raw_df = pd.read_csv(args.dataset)
     doh3 = raw_df[raw_df["protocol"] == "doh3"].copy().reset_index(drop=True)
+    doh3, dropped_domains = select_headline_data(doh3)
     if doh3.empty:
         sys.exit("Error: No DoH/3 rows found in dataset.csv!")
 
@@ -547,6 +557,8 @@ def main():
     print("DOH/3 PRIVACY ANALYSIS (RQ1 - RQ2 - RQ3)", flush=True)
     print("=" * 65, flush=True)
     print(f"Loaded {len(doh3)} DoH/3 samples across {doh3.resolver.nunique()} resolvers and {doh3.domain.nunique()} domains.", flush=True)
+    print(f"Headline repeats: 8-19; target successful repeats: 10; "
+          f"dropped domains: {dropped_domains or 'none'}", flush=True)
     overview = doh3.groupby("resolver").agg(
         samples=("domain", "size"),
         domains=("domain", "nunique"),
@@ -564,7 +576,7 @@ def main():
 **Dataset:** `{args.dataset}`  
 **Protocol:** DNS-over-HTTP/3 (`doh3`)  
 **Total DoH/3 Samples:** {len(doh3)}  
-**Domains:** {doh3.domain.nunique()} (25 Global, 25 Indian)  
+**Domains:** {doh3.domain.nunique()}  
 **Resolvers:** {", ".join(sorted(doh3.resolver.unique()))}  
 
 ---
@@ -580,10 +592,8 @@ def main():
 ### Results:
 {md_table(rq1_df)}
 
-### Findings & Conclusion for RQ1:
-- Across all resolvers, DoH/3 queries exhibit statistically significant distinguishability above the random baseline (2.0% for 50 domains).
-- Depending on the resolver implementation, domain fingerprinting achieves between **2.2% and 14.0% Top-1 accuracy** and up to **27% Top-5 accuracy**.
-- While DoH/3 significantly reduces metadata leakage compared to older unpadded protocols, **queries are still distinguishable above chance** for implementations that do not employ strict uniform packet padding.
+### Interpretation for RQ1:
+Interpret the computed accuracy, interval, and empirical p-value in the table above. A non-significant result means no detectable leakage at this sample size. This DoH/3-only analysis does not support protocol-comparison claims.
 
 ---
 
@@ -593,11 +603,8 @@ def main():
 ### Results:
 {md_table(rq2_df)}
 
-### Findings & Conclusion for RQ2:
-- **AdGuard DoH/3** demonstrates the highest traffic-analysis resistance (~99.8% resistance score, 2.2% accuracy, virtually indistinguishable from random noise).
-- **Cloudflare DoH/3** exhibits strong resistance (~95.8% resistance score, 6.1% accuracy).
-- **Quad9 and Google DoH/3** show moderate metadata leakage (~14.0% accuracy), showing that resolver-specific QUIC packet structures, certificate chains, and DNS response framing leak identifiable patterns.
-- **Top-5 identification** reaches over 21-27%, showing that an eavesdropper can reliably narrow down a user's queried domain to a small candidate set.
+### Interpretation for RQ2:
+Resolver rows are descriptive. Do not rank resolvers unless a supported paired comparison reports separated intervals and a significant difference.
 
 ---
 
@@ -613,11 +620,8 @@ def main():
 ### Feature Group Ablation Study:
 {md_table(abl_df)}
 
-### Findings & Conclusion for RQ3:
-1. **Packet Size Statistics (Upstream/Downstream Means, Maxima, and Standard Deviations):** Account for the largest share of the predictive signal. Variations in DNS response payload sizes directly manifest as differences in QUIC packet lengths.
-2. **First-20 Signed Packet Sequence:** Handshake and initial query exchange packet lengths provide significant discriminative fingerprints.
-3. **Volume Characteristics:** Total bytes transferred and upstream/downstream packet counts are the second largest leakage source.
-4. **Timing and Burst Dynamics:** Inter-arrival times and burst lengths provide complementary signal, but are more susceptible to network jitter.
+### Interpretation for RQ3:
+Use the computed ablation and permutation-importance results to assess feature groups. MDI importance alone is not evidence of leakage because it can favour continuous features.
 """
 
     report_path = args.out / "DoH3_RQ123_Report.md"

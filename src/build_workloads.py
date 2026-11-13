@@ -101,6 +101,8 @@ def main() -> int:
         help="How many top Tranco domains to download as the candidate pool",
     )
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    parser.add_argument("--preserve-prefix", type=Path,
+                        help="existing workloads directory whose first entries must remain unchanged")
     parser.add_argument("--skip-resolution", action="store_true")
     args = parser.parse_args()
     if args.count < 1:
@@ -118,6 +120,17 @@ def main() -> int:
         d for d in domains if d.endswith(".in") or d in INDIA_SEED_DOMAINS
     )
     india_domains = take_live(india_candidates, args.count, args.skip_resolution)
+
+    if args.preserve_prefix:
+        old_global = (args.preserve_prefix / "global.txt").read_text(encoding="utf-8").split()
+        old_india = (args.preserve_prefix / "india.txt").read_text(encoding="utf-8").split()
+        if len(old_global) > args.count or len(old_india) > args.count:
+            raise ValueError("preserved workloads are longer than requested count")
+        global_domains = old_global + [domain for domain in global_domains if domain not in old_global]
+        india_domains = old_india + [domain for domain in india_domains if domain not in old_india]
+        global_domains, india_domains = global_domains[:args.count], india_domains[:args.count]
+        if global_domains[:len(old_global)] != old_global or india_domains[:len(old_india)] != old_india:
+            raise RuntimeError("workload prefix verification failed")
 
     if len(global_domains) < args.count or len(india_domains) < args.count:
         raise RuntimeError(
@@ -139,6 +152,7 @@ def main() -> int:
         "pool_size_requested": args.pool,
         "pool_size_downloaded": len(domains),
         "requested_domains_per_workload": args.count,
+        "preserved_prefix_directory": str(args.preserve_prefix) if args.preserve_prefix else None,
         "resolution_filter_applied": not args.skip_resolution,
         "india_definition": "domains ending in .in, plus INDIA_SEED_DOMAINS, in Tranco rank order",
         "india_seed_domains": sorted(INDIA_SEED_DOMAINS),

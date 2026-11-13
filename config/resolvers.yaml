@@ -1,0 +1,29 @@
+resolvers:
+  adguard:
+    host: dns.adguard-dns.com
+    path: /dns-query
+    protocols:
+      doh: {transport: tcp, port: 443}
+      doh3: {transport: udp, port: 443}
+  cloudflare:
+    host: cloudflare-dns.com
+    path: /dns-query
+    protocols:
+      doh: {transport: tcp, port: 443}
+      doh3: {transport: udp, port: 443}
+  google:
+    host: dns.google
+    path: /dns-query
+    protocols:
+      doh: {transport: tcp, port: 443}
+      doh3: {transport: udp, port: 443}
+  quad9:
+    host: dns.quad9.net
+    path: /dns-query
+    protocols:
+      doh: {transport: tcp, port: 443}
+      doh3: {transport: udp, port: 443}
+  nextdns:
+    host: ${NEXTDNS_HOST}
+    path: /dns-query
+    notes: Set NEXTDNS_HOST locally; never commit a profile identifier.

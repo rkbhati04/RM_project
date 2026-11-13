@@ -1,6 +1,6 @@
-# Privacy Analysis of Modern Encrypted DNS
+# Privacy Analysis of Modern Encrypted DNS: DoH vs. DoH/3
 
-An empirical research methodology study evaluating the side-channel traffic analysis resistance of modern QUIC-based encrypted DNS protocols (**DNS-over-QUIC / DoQ**, RFC 9250 and **DNS-over-HTTP/3 / DoH/3**, RFC 9114) against standard **DNS-over-HTTPS (DoH)** (RFC 8484 over HTTP/2).
+An empirical research methodology study evaluating the side-channel traffic analysis resistance of modern QUIC-based encrypted DNS (**DNS-over-HTTP/3 / DoH/3**, RFC 9114) against standard **DNS-over-HTTPS (DoH)** (RFC 8484 over HTTP/2).
 
 ---
 
@@ -8,26 +8,26 @@ An empirical research methodology study evaluating the side-channel traffic anal
 
 Encrypted DNS protocols encrypt DNS query and response payloads to prevent on-path eavesdroppers and ISPs from inspecting domain queries directly. However, unencrypted transport-layer metadata—packet sizes, flow duration, burst patterns, directionality, and packet inter-arrival times—remains visible.
 
-This project implements a controlled, reproducible closed-world measurement testbed to evaluate whether QUIC-based encrypted DNS transports improve privacy or expose new side-channel leakage channels.
+This project implements a controlled, reproducible closed-world measurement testbed to evaluate whether HTTP/3 (QUIC-based) encrypted DNS improves privacy or exposes new side-channel leakage channels compared to standard HTTP/2 DoH.
 
 ### Key Empirical Findings
 
 | Experiment | Target Research Question | Model & Methodology | Empirical Finding |
 | :--- | :--- | :--- | :--- |
-| **E1** | **RQ1:** Protocol Identification | Random Forest (3-Way) | **97.44% Accuracy** (Macro-F1: 0.9783). Protocols leak distinct handshake and framing signatures even with ports/IPs excluded. |
-| **E2** | **RQ2:** Website Fingerprinting | Multi-Class XGBoost (50 classes) | **DoH/3 is most private (4.44% acc)**. **DoQ leaks the most metadata (9.57% acc)** due to lack of HTTP frame multiplexing noise. |
-| **E3** | **RQ3:** Feature Leakage Attribution | RF Gini Importance & Ablation | **Inter-Arrival Times (IAT)** and early handshake packet sizes (`pkt_00`–`pkt_19`) are the primary leakage vectors. |
-| **E4** | **RQ4:** Cross-Resolver Generalizability | Cross-Resolver Transfer | **Zero generalization across resolvers (1.83% acc)**. Fingerprint signatures are strictly resolver-dependent. |
-| **E5** | **RQ5:** Regional Workload Variance | Global vs. Indian Workloads | **Indian regional services are 3.8x more fingerprintable (9.17%)** than standardized global edge CDN services (2.40%). |
+| **E1** | **RQ1:** Protocol Identification | Random Forest / XGBoost | **98.5%+ Accuracy** (Macro-F1 > 0.98). DoH and DoH/3 leak distinct transport framing and handshake signatures even with ports/IPs excluded. |
+| **E2** | **RQ2:** Website Fingerprinting | Multi-Class XGBoost & RF (50 classes) | **DoH/3 provides higher privacy resistance** (10.3% fingerprinting accuracy on Quad9; 5.0% on AdGuard) compared to standard DoH (up to 34.0% accuracy). |
+| **E3** | **RQ3:** Feature Leakage Attribution | RF Gini Importance & Ablation | **Early handshake packet sizes (`pkt_00`–`pkt_19`)** and **Inter-Arrival Times (IAT)** are the primary leakage vectors. |
+| **E4** | **RQ4:** Cross-Resolver Generalizability | Cross-Resolver Transfer | **Zero domain fingerprint generalization across resolvers (1.83% acc)**, but **near-perfect protocol distinguishability (~99-100%)** generalizes across unseen resolvers. |
+| **E5** | **RQ5:** Regional Workload Variance | Global vs. Indian Workloads | **Indian regional services are more fingerprintable (16.67%)** than standardized global edge CDN services (12.50%). |
 
 ---
 
 ## 2. Research Questions
 
-- **RQ1 (Protocol Identification):** Can DoQ, DoH/3, and DoH queries be distinguished using encrypted traffic metadata alone without inspecting transport ports (443 vs 853) or IP addresses?
-- **RQ2 (Traffic Analysis Resistance):** Which encrypted DNS protocol exhibits the highest resistance to website fingerprinting attacks?
+- **RQ1 (Protocol Identification):** Can DoH/3 and DoH queries be distinguished using encrypted traffic metadata alone without inspecting transport ports (443 TCP vs 443 UDP) or IP addresses?
+- **RQ2 (Traffic Analysis Resistance):** Which encrypted DNS protocol exhibits higher resistance to website fingerprinting attacks (DoH vs DoH/3)?
 - **RQ3 (Feature Leakage Attribution):** Which specific traffic features (packet sizes, timing/IAT, burst sequences, or early handshake packets) drive metadata leakage?
-- **RQ4 (Resolver & Network Dependency):** How does leakage vary across public resolvers (AdGuard vs Quad9) and access networks, and do fingerprint models generalize across resolvers?
+- **RQ4 (Resolver & Network Dependency):** How does leakage vary across public resolvers (AdGuard, Cloudflare, Google, Quad9) and access networks, and do fingerprint models generalize across resolvers?
 - **RQ5 (Regional Workload Variance):** Do Indian domains (e-commerce, payment systems, `.in` TLDs) exhibit different privacy characteristics compared to top global domains?
 
 ---
@@ -45,7 +45,7 @@ This project implements a controlled, reproducible closed-world measurement test
 │   ├── run_experiments.py    <- Rapid ML evaluation runner (RQ1-RQ3 on DoH/3)
 │   ├── doh3_rq123_analysis.py<- Full RQ1-RQ3 evaluation & statistical reporting for DoH/3
 │   ├── rq123_analysis.py     <- Entry point alias for DoH/3 evaluation
-│   ├── analysis_v2.py        <- Comprehensive multi-protocol (DoH/DoH3/DoQ) study (E1-E5)
+│   ├── analysis_v2.py        <- Comparative study (DoH vs DoH/3) across all resolvers (E1-E5)
 │   ├── feature_signal.py     <- Feature signal-to-noise & ANOVA ranking utility
 │   ├── data_status.py        <- Quick dataset status & capture counter utility
 │   └── plot_results.py       <- Generates publication-ready figures in results/
@@ -65,10 +65,10 @@ This project implements a controlled, reproducible closed-world measurement test
 - **Liveness Verification:** Lazily validated via active socket resolution before collection.
 
 ### 4.2 Data Collection Protocol
-- **Testbed Engine:** Combines the `q` CLI DNS client (supporting HTTP/2 DoH, HTTP/3 DoH/3, and QUIC DoQ) with native `dumpcap` packet capture.
-- **BPF Isolation:** Captures are bound to resolver IPs on specific ports (`port 443 or port 853`) to eliminate background OS traffic.
+- **Testbed Engine:** Combines the `q` CLI DNS client (supporting HTTP/2 DoH and HTTP/3 DoH/3) with native `dumpcap` packet capture.
+- **BPF Isolation:** Captures are bound to resolver IPs on specific ports (`port 443 TCP/UDP`) to eliminate background OS traffic.
 - **Timed Capture Window:** 3.0-second fixed capture window with 1.0-second dumpcap warmup. Queries exceeding 1.5s latency are flagged as `incomplete` to prevent truncated flow artifacts.
-- **Repeat Independence:** Repeats are executed as the outer loop across time of day. Evaluation splits strictly train on repeats 0 and 1, testing on repeat 2 to prevent temporal session leakage.
+- **Repeat Independence:** Repeats are executed as the outer loop across time of day. Evaluation splits strictly train on earlier repeats and test on held-out repeats to prevent temporal session leakage.
 
 ### 4.3 Feature Engineering (Zero Label Leakage)
 Extracts **39 metadata features** from each flow:
@@ -76,7 +76,7 @@ Extracts **39 metadata features** from each flow:
 - **Timing & Inter-Arrival Times:** Flow duration, time to first response packet (`t_first_down`), mean/std/median/max IAT.
 - **Burst Dynamics:** Unidirectional packet sequence counts, burst byte volumes, and burst lengths.
 - **Handshake Sequence:** Signed sizes of the first 20 packets (`pkt_00` to `pkt_19`).
-- **Strict Safeguards:** IP addresses, port numbers (443 vs 853), and transport protocols are strictly excluded.
+- **Strict Safeguards:** IP addresses, port numbers, and transport protocols are strictly excluded.
 
 ---
 
@@ -112,14 +112,14 @@ python3 src/build_workloads.py --tranco-id L5PV4 --count 25 --pool 1000000
 
 #### Step 2: Probe & Capture Encrypted Traffic
 ```bash
-# AdGuard and Quad9 across DoH, DoH/3, and DoQ (3 repeats = 900 queries)
+# Capture across DoH and DoH/3
 python3 src/probe_and_capture.py \
   --network airtel \
   --workload both \
   --all-domains \
   --repeats 3 \
-  --resolvers adguard quad9 \
-  --protocols doh doh3 doq \
+  --resolvers adguard cloudflare google quad9 \
+  --protocols doh doh3 \
   --resume
 ```
 
@@ -136,7 +136,7 @@ python3 src/run_experiments.py
 # Full DoH/3 statistical evaluation and markdown report generation:
 python3 src/doh3_rq123_analysis.py --quick
 
-# Multi-protocol baseline study (E1-E5 across DoH, DoH/3, and DoQ):
+# Comparative study (DoH vs DoH/3) across all resolvers (E1-E5):
 python3 src/analysis_v2.py --quick
 ```
 
@@ -150,11 +150,11 @@ python3 src/plot_results.py
 ## 6. Real-World Network Findings
 
 1. **Enterprise / Campus Firewall Filtering:**  
-   Probing on institutional campus Wi-Fi revealed that university firewalls drop outbound UDP on ports 443 and 853, blocking DoH/3 and DoQ entirely and forcing HTTP proxy traversal. Consumer cellular networks (Airtel) allowed unhindered QUIC communication.
+   Probing on institutional campus Wi-Fi revealed that university firewalls drop outbound UDP on port 443, blocking DoH/3 entirely and forcing standard TCP DoH or HTTP proxy traversal. Consumer cellular networks (Airtel) allowed unhindered QUIC/HTTP/3 communication.
 2. **Resolver Transport Reliability:**  
-   On Airtel, Quad9 DoH (TCP) exhibited frequent connection timeouts (~33% completion), while Quad9 QUIC (DoH/3 and DoQ) achieved over 92% completion.
-3. **Counter-Intuitive QUIC Privacy:**  
-   While DoQ minimizes protocol overhead, it exposes raw payload sizes. DoH/3's HTTP/3 multiplexing and control framing act as accidental padding, making it significantly more resistant to website fingerprinting than DoQ.
+   On Airtel, Quad9 DoH (TCP) exhibited frequent connection timeouts, while Quad9 DoH/3 (UDP/QUIC) achieved over 92% completion.
+3. **HTTP/3 Frame Multiplexing Privacy Benefit:**  
+   DoH/3's HTTP/3 multiplexing and control framing act as inherent padding, making it significantly more resistant to website fingerprinting than standard HTTP/2 DoH.
 
 ---
 

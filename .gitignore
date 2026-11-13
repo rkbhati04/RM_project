@@ -29,8 +29,7 @@ temp.txt
 *.tmp
 
 # Documents, roadmaps, speeches, presentations, and research papers
-# (Kept locally for research reference, excluded from public repository)
-docs/
+# Project documentation is versioned; private source papers and presentations remain local.
 Progress/
 notebooks/
 *.pdf
@@ -39,5 +38,17 @@ Project_topic.png
 
 # Experimental datasets and raw packet captures
 # (Excluded to protect local data, comply with privacy safeguards, and maintain a lightweight repository)
-data/
+# Data: ignore everything by default, then whitelist small, shareable files
+data/*
+!data/README.md
+!data/workloads/
+!data/raw/
+data/raw/*
+!data/raw/manifest_pilot_v1.csv
+!data/processed/
+data/processed/*
+!data/processed/dataset.csv
 results/
+*.pcap
+*.pcapng
+

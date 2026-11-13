@@ -1,4 +1,4 @@
-"""Pilot analysis of encrypted-DNS metadata leakage (E1-E5) with honest statistics.
+"""Pilot analysis of encrypted-DNS metadata leakage (DoH vs DoH/3) with honest statistics.
 
 Reads  data/processed/dataset.csv
 Writes results/*.csv, results/*.png and results/summary.md
@@ -11,7 +11,7 @@ Design rules
   * Every fingerprinting score is compared with an EMPIRICAL chance level (label-permutation
     test) and a 95% Wilson interval, because accuracies of a few percent on ~50 classes are
     easily noise.
-  * Fair comparison across protocols = one resolver at a time (Quad9 has all three protocols).
+  * Fair comparison across protocols = one resolver at a time.
 
 Example:
     python src\\analysis_v2.py             # full run
@@ -32,6 +32,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import yaml
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.preprocessing import LabelEncoder
@@ -55,6 +56,20 @@ GROUPS = {
     "first20": [f"pkt_{i:02d}" for i in range(20)],
 }
 FEATS = [c for cols in GROUPS.values() for c in cols]
+
+
+def select_headline_data(df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, str]]:
+    config = yaml.safe_load((ROOT / "config" / "project.yaml").read_text(encoding="utf-8"))
+    settings = config["analysis"]
+    start, end = settings["headline_repeats"]
+    target_k = settings["target_successful_repeats"]
+    selected = df[df["repeat"].between(start, end)].copy()
+    counts = selected.groupby("domain")["repeat"].nunique()
+    dropped = {
+        str(domain): f"{int(count)} successful repeats; required {target_k}"
+        for domain, count in counts.items() if count < target_k
+    }
+    return selected[selected["domain"].isin(set(counts[counts >= target_k].index))].copy(), dropped
 
 
 # ----------------------------------------------------------------------------- helpers
@@ -196,12 +211,12 @@ def md_table(df: pd.DataFrame) -> str:
 
 # ----------------------------------------------------------------------------- experiments
 def run_e1(df, a, out):
-    sub = df[df.resolver.isin(["adguard", "quad9"])]
     tasks = {
-        "3-way DoH/DoH3/DoQ": sub,
-        "DoH3 vs DoQ": sub[sub.protocol.isin(["doh3", "doq"])],
-        "3-way, Quad9 only": sub[sub.resolver == "quad9"],
-        "3-way, AdGuard only": sub[sub.resolver == "adguard"],
+        "DoH vs DoH3 (All Resolvers)": df,
+        "DoH vs DoH3 (Quad9)": df[df.resolver == "quad9"],
+        "DoH vs DoH3 (AdGuard)": df[df.resolver == "adguard"],
+        "DoH vs DoH3 (Google)": df[df.resolver == "google"],
+        "DoH vs DoH3 (Cloudflare)": df[df.resolver == "cloudflare"],
     }
     rows, conf = [], None
     for tname, d in tasks.items():
@@ -214,7 +229,7 @@ def run_e1(df, a, out):
                 pred = cv_group(m, X, y, g, a.folds, SEED + s, a.jobs)
                 accs.append(accuracy_score(y, pred))
                 f1s.append(f1_score(y, pred, average="macro"))
-                if s == 0 and m == "rf" and tname == "3-way DoH/DoH3/DoQ":
+                if s == 0 and m == "rf" and tname == "DoH vs DoH3 (All Resolvers)":
                     labels = sorted(set(y))
                     conf = (labels, confusion_matrix(y, pred, labels=labels))
             rows.append({"task": tname, "model": m, "n": len(y),
@@ -231,22 +246,25 @@ def run_e1(df, a, out):
         ax.set_yticks(range(len(labels)), labels)
         ax.set_xlabel("predicted")
         ax.set_ylabel("true")
-        ax.set_title("E1 protocol identification (unseen domains)")
+        ax.set_title("E1 protocol identification: DoH vs DoH/3\n(unseen domains)")
         for i in range(len(labels)):
             for j in range(len(labels)):
                 ax.text(j, i, cm[i, j], ha="center", va="center",
                         color="white" if cm[i, j] > cm.max() / 2 else "black")
         fig.tight_layout()
-        fig.savefig(out / "E1_confusion_3way.png", dpi=160)
+        fig.savefig(out / "E1_confusion_doh_doh3.png", dpi=160)
         plt.close(fig)
     return res
 
 
 def run_e2(df, a, out):
     rows = []
-    for res, prots in (("quad9", ["doh", "doh3", "doq"]), ("google", ["doh", "doh3"])):
-        for p in prots:
-            r = fingerprint(df[(df.resolver == res) & (df.protocol == p)], a.jobs, a.perm)
+    for res in ("quad9", "google", "adguard", "cloudflare"):
+        for p in ("doh", "doh3"):
+            sub = df[(df.resolver == res) & (df.protocol == p)]
+            if len(sub) < 20:
+                continue
+            r = fingerprint(sub, a.jobs, a.perm)
             if r:
                 rows.append({"resolver": res, "protocol": p, **r})
                 print(f"    E2 {res}/{p}: acc={r['accuracy']:.3f} chance={r['perm_mean']:.3f} p={r['p_value']}")
@@ -276,7 +294,7 @@ def run_e2_order_control(df, a, out):
       (c) train on fixed-order repeats, test on randomized, later repeats: tests order AND time stability."""
     k0 = a.shuffled_from
     rows = []
-    for p in ["doh", "doh3", "doq"]:
+    for p in ["doh", "doh3"]:
         d = df[(df.resolver == "quad9") & (df.protocol == p)]
         rnd = d[d["repeat"] >= k0]
         if rnd["repeat"].nunique() >= 3:
@@ -346,11 +364,10 @@ def run_e4(df, a, out):
                          "macro_f1": round(f1_score(y, pred, average="macro"), 4)})
 
     for tr_r, te_r in (("adguard", "quad9"), ("quad9", "adguard")):
-        add((tr_r, te_r), df[df.resolver == tr_r], df[df.resolver == te_r], "3-way protocol id")
-    dd = df[df.protocol.isin(["doh", "doh3"])]
+        add((tr_r, te_r), df[df.resolver == tr_r], df[df.resolver == te_r], "DoH vs DoH3 (cross-resolver)")
     for te_r in ("google", "cloudflare"):
-        add(("adguard+quad9", te_r), dd[dd.resolver.isin(["adguard", "quad9"])],
-            dd[dd.resolver == te_r], "DoH vs DoH3 (unseen resolver)")
+        add(("adguard+quad9", te_r), df[df.resolver.isin(["adguard", "quad9"])],
+            df[df.resolver == te_r], "DoH vs DoH3 (unseen resolver)")
     res = pd.DataFrame(rows)
     res.to_csv(out / "E4_cross_resolver.csv", index=False)
     return res
@@ -359,7 +376,7 @@ def run_e4(df, a, out):
 def run_e5(df, a, out):
     q = df[df.resolver == "quad9"]
     rows = []
-    for p in ["doh", "doh3", "doq"]:
+    for p in ["doh", "doh3"]:
         d = q[q.protocol == p]
         if d.workload.nunique() < 2 or d.domain.nunique() < 6:
             continue
@@ -372,7 +389,7 @@ def run_e5(df, a, out):
                      "accuracy": round(k / len(y), 4), "ci95_lo": round(lo, 4), "ci95_hi": round(hi, 4),
                      "chance": round(pd.Series(y).value_counts(normalize=True).max(), 4), "p_value": ""})
     for wl in ("global", "india"):
-        for p in ["doh", "doh3", "doq"]:
+        for p in ["doh", "doh3"]:
             r = fingerprint(q[(q.protocol == p) & (q.workload == wl)], a.jobs, max(a.perm // 2, 0))
             if r:
                 rows.append({"analysis": "domain fingerprinting", "resolver": "quad9", "protocol": p,
@@ -406,6 +423,9 @@ def main() -> int:
     if missing:
         sys.exit(f"dataset.csv is missing columns: {missing}")
     df = df.dropna(subset=FEATS).reset_index(drop=True)
+    df, dropped_domains = select_headline_data(df)
+    print(f"Headline repeats: 8-19; target successful repeats: 10; "
+          f"dropped domains: {dropped_domains or 'none'}")
 
     overview = df.groupby(["resolver", "protocol"]).agg(
         rows=("domain", "size"), domains=("domain", "nunique"),

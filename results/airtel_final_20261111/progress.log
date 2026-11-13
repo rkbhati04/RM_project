@@ -1,0 +1,34 @@
+0.3s start global/adguard/doh
+285.5s done global/adguard/doh
+285.5s start global/adguard/doh3
+640.9s done global/adguard/doh3
+640.9s start global/cloudflare/doh
+936.8s done global/cloudflare/doh
+936.8s start global/cloudflare/doh3
+1298.0s done global/cloudflare/doh3
+1298.0s start global/google/doh
+1620.3s done global/google/doh
+1620.3s start global/google/doh3
+1877.8s done global/google/doh3
+1877.8s start global/quad9/doh
+2175.9s done global/quad9/doh
+2175.9s start global/quad9/doh3
+2542.9s done global/quad9/doh3
+2542.9s start india/adguard/doh
+2776.8s done india/adguard/doh
+2776.8s start india/adguard/doh3
+3053.6s done india/adguard/doh3
+3053.6s start india/cloudflare/doh
+3335.9s done india/cloudflare/doh
+3335.9s start india/cloudflare/doh3
+3709.3s done india/cloudflare/doh3
+3709.3s start india/google/doh
+4024.6s done india/google/doh
+4024.6s start india/google/doh3
+4387.9s done india/google/doh3
+4388.0s start india/quad9/doh
+4508.7s done india/quad9/doh
+4508.7s start india/quad9/doh3
+4738.3s done india/quad9/doh3
+4738.4s WP3/WP4 headline analyses complete
+9224.3s complete
