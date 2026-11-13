@@ -13,9 +13,9 @@ Combined checklist for the remaining project work.
 
 ## Airtel work remaining
 
-- [ ] Implement and evaluate richer packet-size, burst n-gram, and post-handshake features (WP7).
+- [ ] Implement and evaluate richer packet-size, burst n-gram, and post-handshake features (WP7). Runner: `python3 scripts/run_airtel_defined_analysis.py`.
 - [ ] Generate accuracy-vs-domain-count and accuracy-vs-repeat scaling curves (WP10). Script ready: `python3 scripts/run_airtel_scaling.py`.
-- [ ] Compare pilot repeats with T0 for time stability (WP11).
+- [ ] Compare pilot repeats with T0 for time stability (WP11). Runner: `python3 scripts/run_airtel_defined_analysis.py`.
 - [ ] Train and evaluate CNN/GRU sequence models if time permits (WP8).
 - [ ] Add open-world monitored-vs-unmonitored evaluation if time permits (WP9).
 - [ ] Simulate padding and delay defenses, clearly labelled as simulations (WP13).

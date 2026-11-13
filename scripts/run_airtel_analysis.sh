@@ -42,8 +42,17 @@ PYTHONPATH=src python3 -m encdns analyze \
 PYTHONPATH=src python3 -m encdns report "$RUN_ID"
 PYTHONPATH=src python3 -m encdns ledger "$RUN_ID"
 
+echo "Running defined Airtel analyses: WP7, WP10, WP11"
+scaling_args=()
+defined_args=()
+if [[ "$QUICK" == true ]]; then
+  defined_args+=(--quick)
+fi
+python3 scripts/run_airtel_scaling.py "${scaling_args[@]}"
+python3 scripts/run_airtel_defined_analysis.py "${defined_args[@]}"
+
 if [[ "$SKIP_ADVANCED" == true ]]; then
-  echo "Skipped advanced E1-E5 analysis."
+  echo "Skipped optional advanced E1-E5 analysis."
   exit 0
 fi
 
