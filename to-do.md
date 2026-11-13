@@ -33,7 +33,7 @@ Combined checklist for the remaining project work.
 ## Additional analysis
 
 - [ ] Implement and evaluate richer packet-size, burst n-gram, and post-handshake features (WP7).
-- [ ] Generate accuracy-vs-domain-count and accuracy-vs-repeat scaling curves (WP10).
+- [ ] Generate accuracy-vs-domain-count and accuracy-vs-repeat scaling curves (WP10). Script ready: `python3 scripts/run_airtel_scaling.py`.
 - [ ] Compare pilot repeats with T0 for time stability (WP11).
 - [ ] Analyze cross-network feature shift, resolver ranking consistency, per-network DoH vs DoH/3, and Global vs Indian behavior (N4-N7).
 - [ ] Train and evaluate CNN/GRU sequence models if time permits (WP8).
