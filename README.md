@@ -130,11 +130,16 @@ python3 src/extract_features.py --max-latency 1.5
 
 #### Step 4: Run Machine Learning Experiments
 ```bash
-# Rapid DoH/3 evaluation (RQ1, RQ2, RQ3):
-python3 src/run_experiments.py
+# All-in-one Airtel analysis runner (WP7, WP8, WP9, WP10, WP11, WP13):
+python3 scripts/run_airtel_all.py
 
-# Full DoH/3 statistical evaluation and markdown report generation:
-python3 src/doh3_rq123_analysis.py --quick
+# Fast smoke-test variant:
+python3 scripts/run_airtel_all.py --quick
+
+# Core pipeline analysis & ledger verification:
+PYTHONPATH=src python3 -m encdns analyze --run-id airtel_topup_20261113 --permutations 200 --resume
+PYTHONPATH=src python3 -m encdns report airtel_topup_20261113
+PYTHONPATH=src python3 -m encdns ledger airtel_topup_20261113
 
 # Comparative study (DoH vs DoH/3) across all resolvers (E1-E5):
 python3 src/analysis_v2.py --quick

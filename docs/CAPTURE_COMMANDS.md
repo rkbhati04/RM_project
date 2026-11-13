@@ -2,6 +2,13 @@
 
 Aman (Jio):
 
+**macOS (Recommended):**
+```bash
+./scripts/run_jio_capture.sh
+```
+*(Runs preflight, verifies QUIC UDP 443, prevents sleep via caffeinate, and runs all 6,000 captures)*
+
+**Windows PowerShell:**
 ```powershell
 powershell.exe -ExecutionPolicy Bypass -File .\scripts\preflight.ps1 -Network jio -Interface "Wi-Fi" -NoLive
 powershell.exe -ExecutionPolicy Bypass -File .\scripts\run_network.ps1 -Network jio -Interface "Wi-Fi" -MachineLabel "jio"

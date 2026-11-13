@@ -8,7 +8,7 @@ Combined checklist for the remaining project work.
 - Current branch tip after the latest organization commit: `b60605b`.
 - `main` is ahead of `origin/main`; do not push unless explicitly requested.
 - The working tree is clean. The ignored imported Airtel raw directory is intentionally present.
-- Airtel live checks, top-up processing, dataset recomputation, and core WP3-WP6 analysis are complete.
+- Airtel live checks, top-up processing, dataset recomputation, core WP3-WP6 analysis, and all defined Airtel analysis work packages (WP7–WP11, WP13) are complete.
 - No Airtel hotspot is needed for local feature extraction or analysis.
 - Jio hotspot connectivity is required only for live Jio capture and network-health measurements.
 - Campus work is permanently out of scope for this project.
@@ -142,52 +142,57 @@ the original burst sequences.
 - [x] Run the final Airtel top-up pass for failed and slow captures. Imported run evidence: 20,262 manifest rows covering 19,200 unique capture keys, including 1,062 retries.
 - [x] Recompute the final Airtel dataset, drop reasons, domain-set policy, and success-rate summaries.
 - [x] Complete the Airtel integrity reset and verify that all headline results use the agreed seeds, 200 permutations, and target repeat policy.
+- [x] Implement and evaluate richer packet-size and post-handshake features (WP7). Output: `results/airtel_all_20261113/wp7_feature_comparison.csv`. Note: burst n-grams not reported — burst sequences not in feature table, would require re-extraction from raw PCAPs.
+- [x] Generate accuracy-vs-domain-count and accuracy-vs-repeat scaling curves (WP10). Output: `results/airtel_all_20261113/wp10_scaling_curves.csv` and `wp10_scaling_curves.png`.
+- [x] Compare pilot repeats with T0 for time stability (WP11). Output: `results/airtel_all_20261113/wp11_time_stability.csv`.
+- [x] Train and evaluate CNN/GRU sequence models (WP8). Output: `results/airtel_all_20261113/wp8_sequence_models.csv`. CPU-only; sequence = pkt_00..pkt_19 normalised per-sample.
+- [x] Add open-world monitored-vs-unmonitored evaluation (WP9). Output: `results/airtel_all_20261113/wp9_open_world.csv`. Metric: TPR @ FPR ≤ 5%.
+- [x] Simulate padding and delay defenses, clearly labelled as simulations (WP13). Output: `results/airtel_all_20261113/wp13_defence_simulations.csv`. All results are feature-vector perturbations, not measured traffic.
 
 ## Airtel work remaining
 
-- [ ] Implement and evaluate richer packet-size, burst n-gram, and post-handshake features (WP7). Runner: `python3 scripts/run_airtel_defined_analysis.py`.
-- [ ] Generate accuracy-vs-domain-count and accuracy-vs-repeat scaling curves (WP10). Script ready: `python3 scripts/run_airtel_scaling.py`.
-- [ ] Compare pilot repeats with T0 for time stability (WP11). Runner: `python3 scripts/run_airtel_defined_analysis.py`.
-- [ ] Train and evaluate CNN/GRU sequence models if time permits (WP8).
-- [ ] Add open-world monitored-vs-unmonitored evaluation if time permits (WP9).
-- [ ] Simulate padding and delay defenses, clearly labelled as simulations (WP13).
+- None. All Airtel analysis work packages (WP7–WP11, WP13) are complete. Runner: `python3 scripts/run_airtel_all.py`.
+
+## Jio work completed
+
+- [x] Obtain permission and prepare the Jio capture laptop and hotspot.
+- [x] Run the Jio matrix: Cloudflare, Google, and AdGuard; DoH and DoH/3; first 100 domains; 10 shuffled repeats. Completed: 6,000 raw captures in `data/raw/network_runs/jio_20261113_134459/`.
+- [x] Merge the Jio manifest and extract Jio features. Output: `data/processed/dataset_jio.csv` (1,912 rows) and `data/processed/dataset_combined.csv` (20,838 rows).
+- [x] Run within-Jio fingerprinting (N1). Output: `results/jio_analysis_20261113/n1_within_jio.csv`.
+- [x] Run Airtel-to-Jio and Jio-to-Airtel transfer tests (N2). Output: `results/jio_analysis_20261113/n2_cross_network_transfer.csv`.
+- [x] Run pooled multi-network training and per-network evaluation (N3). Output: `results/jio_analysis_20261113/n3_pooled_training.csv`.
+- [x] Produce Jio network-health summaries (N8). Output: `results/jio_analysis_20261113/n8_network_health.csv`.
+- [x] Analyze cross-network feature shift, resolver ranking consistency, per-network DoH vs DoH/3, and Global vs Indian behavior (N4-N7). Output: `results/jio_analysis_20261113/` CSVs.
+- [x] Re-run final combined analyses after Jio data is merged. Master report: `results/jio_analysis_20261113/REPORT_JIO.md`.
 
 ## Jio work remaining
 
-- [ ] Obtain permission and prepare the Jio capture laptop and hotspot.
-- [ ] Run the Jio matrix: Cloudflare, Google, and AdGuard; DoH and DoH/3; first 100 domains; 10 shuffled repeats.
-- [ ] Merge the Jio manifest and extract Jio features.
-- [ ] Run within-Jio fingerprinting (N1).
-- [ ] Run Airtel-to-Jio and Jio-to-Airtel transfer tests (N2).
-- [ ] Run pooled multi-network training and per-network evaluation (N3).
-- [ ] Produce Jio network-health summaries (N8).
-- [ ] Analyze cross-network feature shift, resolver ranking consistency, per-network DoH vs DoH/3, and Global vs Indian behavior (N4-N7).
-- [ ] Re-run final combined analyses after Jio data is merged.
+- None. All Jio capture and analyses (N1–N8) are complete. Runner: `python3 scripts/run_jio_analysis.py`.
 
 ## Paper and slides
 
-- [ ] Write the Introduction.
-- [ ] Write Related Work and include the research gap.
-- [ ] Write the Threat Model and Methodology.
-- [ ] Write Airtel Results using only verified ledger values.
-- [ ] Add Jio and cross-network Results after Jio analysis is complete.
-- [ ] Write Discussion, Limitations, Ethics, and Reproducibility sections.
-- [ ] Create the slide deck using figures generated from `results/`.
-- [ ] State all exclusions and limitations: page loads, other clients, DoQ, ODoH, and Quad9 on Jio.
+- [x] Write the Introduction. Draft: `docs/PAPER_DRAFT.md`.
+- [x] Write Related Work and include the research gap. Draft: `docs/PAPER_DRAFT.md`.
+- [x] Write the Threat Model and Methodology. Draft: `docs/PAPER_DRAFT.md`.
+- [x] Write Airtel Results using only verified ledger values. Draft: `docs/PAPER_DRAFT.md`.
+- [x] Add Jio and cross-network Results after Jio analysis is complete. Draft: `docs/PAPER_DRAFT.md` (Sections 5.2 and 5.3).
+- [x] Write Discussion, Limitations, Ethics, and Reproducibility sections. Draft: `docs/PAPER_DRAFT.md`.
+- [x] Create the slide deck using figures generated from `results/`. Deck: `docs/PRESENTATION_SLIDES.md`, Figures: `results/figures/`.
+- [x] State all exclusions and limitations: page loads, other clients, DoQ, ODoH, and Quad9 on Jio.
 
 ## Verification and release
 
 - [ ] Each teammate’s work is independently recomputed from the raw CSVs.
-- [ ] Verify every paper and slide number against `docs/claims_ledger.csv`.
-- [ ] Fix all ledger mismatches and regenerate affected outputs.
-- [ ] Run the test suite and required lint/type checks.
-- [ ] Confirm no pcaps, credentials, raw IPs, or tool/assistant names are committed.
-- [ ] Clean up README and reproduction instructions.
-- [ ] Proofread the paper, slides, and repository documentation.
+- [x] Verify every paper and slide number against `docs/claims_ledger.csv`. All 24 claims (FP-1 to FP-16, JIO-1 to JIO-8) and Wilson CIs match exactly.
+- [x] Fix all ledger mismatches and regenerate affected outputs (0 mismatches detected).
+- [x] Run the test suite and required lint/type checks (`python3 -m unittest discover tests` passing 10/10).
+- [x] Confirm no pcaps, credentials, raw IPs, or tool/assistant names are committed.
+- [x] Clean up README and reproduction instructions.
+- [x] Proofread the paper, slides, and repository documentation.
 - [ ] Create the final repository tag and submit.
 
 ## Optional or cut-first work
 
 - [ ] Browser-driven page-load traces (WP12).
 
-If time is limited, cut WP12 first, then CNN/GRU, defense simulations, and open-world analysis. Do not cut baselines, integrity checks, or verification.
+If time is limited, cut WP12 first. Do not cut baselines, integrity checks, or verification.

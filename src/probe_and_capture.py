@@ -291,18 +291,28 @@ def capture_one(dumpcap, q, iface, bpf, uri, extra, domain, pcap, seconds, warmu
     # Strip any HTTP proxy environment variables so q queries resolvers directly over the network interface
     q_env = {k: v for k, v in os.environ.items() if "proxy" not in k.lower()}
     try:
-        command = [q, domain, "A", f"@{uri}", "--opt", *extra]
+        # Enforce 2s timeout for q to match max_latency and avoid hanging on dropped UDP
+        command = [q, domain, "A", f"@{uri}", "--opt", "--timeout=2s", *extra]
         if q_json_flag:
             command.append(q_json_flag)
         r = subprocess.run(command, capture_output=True,
-                           text=True, timeout=20, env=q_env)
+                           text=True, timeout=10, env=q_env)
         rc, latency = r.returncode, time.time() - t0
         if rc != 0:
             note = (r.stderr or r.stdout).strip().replace("\n", " ")[:200]
     except subprocess.TimeoutExpired:
         rc, latency, note = -1, time.time() - t0, "q timeout"
+    
+    # Allow a brief 150ms window for trailing ACKs/FINs, then flush dumpcap immediately
+    time.sleep(0.15)
+    if cap.poll() is None:
+        try:
+            cap.send_signal(signal.SIGINT)
+        except Exception:
+            cap.terminate()
+
     try:
-        _, cap_err = cap.communicate(timeout=seconds + 15)  # timed stop flushes the pcap
+        _, cap_err = cap.communicate(timeout=seconds + 5)
     except subprocess.TimeoutExpired:
         cap.kill()
         _, cap_err = cap.communicate()
