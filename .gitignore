@@ -27,6 +27,7 @@ ENV/
 temp.txt
 *.log
 *.tmp
+bin/
 
 # Documents, roadmaps, speeches, presentations, and research papers
 # Project documentation is versioned; private source papers and presentations remain local.
