@@ -1,0 +1,119 @@
+{
+  "task": "KU4",
+  "description": "Cross-Network Analyses (N4, N5, N6, N7)",
+  "confound_statement": "All cross-network comparisons are subject to the 'network + machine' confound (Airtel captures conducted on Linux workstation; Jio captures conducted on macOS laptop). Observed differences reflect both ISP infrastructure and host platform characteristics.",
+  "n4_feature_shift": {
+    "top_shifting_features": [
+      {
+        "feature": "up_max",
+        "feature_group": "Physical/MTU & Framing",
+        "ks_statistic_D": 0.985,
+        "relative_shift_pct": -8.9
+      },
+      {
+        "feature": "down_max",
+        "feature_group": "Physical/MTU & Framing",
+        "ks_statistic_D": 0.972,
+        "relative_shift_pct": -3.66
+      },
+      {
+        "feature": "t_first_down",
+        "feature_group": "Timing & Scheduling",
+        "ks_statistic_D": 0.884,
+        "relative_shift_pct": 88.49
+      },
+      {
+        "feature": "iat_max",
+        "feature_group": "Timing & Scheduling",
+        "ks_statistic_D": 0.821,
+        "relative_shift_pct": 81.62
+      },
+      {
+        "feature": "iat_std",
+        "feature_group": "Timing & Scheduling",
+        "ks_statistic_D": 0.783,
+        "relative_shift_pct": 78.22
+      }
+    ],
+    "least_shifting_features": [
+      {
+        "feature": "pkt_01",
+        "feature_group": "Handshake Sequence",
+        "ks_statistic_D": 0.141,
+        "relative_shift_pct": -0.77
+      },
+      {
+        "feature": "pkt_12",
+        "feature_group": "Handshake Sequence",
+        "ks_statistic_D": 0.138,
+        "relative_shift_pct": -1.0
+      },
+      {
+        "feature": "pkt_00",
+        "feature_group": "Handshake Sequence",
+        "ks_statistic_D": 0.124,
+        "relative_shift_pct": -0.06
+      },
+      {
+        "feature": "pkt_11",
+        "feature_group": "Handshake Sequence",
+        "ks_statistic_D": 0.119,
+        "relative_shift_pct": 0.96
+      }
+    ],
+    "ablation_results": [
+      {
+        "feature_set": "All Features (Baseline)",
+        "accuracy": 0.27,
+        "delta_from_baseline": 0.0
+      },
+      {
+        "feature_set": "Ablation: No Timing Features",
+        "accuracy": 0.2267,
+        "delta_from_baseline": -0.0433
+      },
+      {
+        "feature_set": "Ablation: No Size/MTU Features",
+        "accuracy": 0.2233,
+        "delta_from_baseline": -0.0467
+      },
+      {
+        "feature_set": "Ablation: Handshake Sequence Only",
+        "accuracy": 0.21,
+        "delta_from_baseline": -0.06
+      },
+      {
+        "feature_set": "Ablation: Flow Aggregates Only (No Sequence)",
+        "accuracy": 0.26,
+        "delta_from_baseline": -0.01
+      }
+    ]
+  },
+  "n5_resolver_ranking": {
+    "airtel_doh_ranking": [
+      "Quad9 (34.7%)",
+      "AdGuard (27.9%)",
+      "Cloudflare (21.2%)",
+      "Google (16.9%)"
+    ],
+    "jio_doh_ranking": [
+      "Google (14.3%)",
+      "AdGuard (6.3%)",
+      "Cloudflare (unusable / routing drops)",
+      "Quad9 (omitted)"
+    ],
+    "ranking_inversion": "Google shifts from rank 4 (lowest vulnerability) on Airtel broadband to rank 1 (highest vulnerability) on Jio cellular."
+  },
+  "n6_protocol_availability": {
+    "airtel_doh_completion_rate": 0.985,
+    "airtel_doh3_completion_rate": 0.968,
+    "jio_doh_completion_rate": 0.953,
+    "jio_doh3_completion_rate": 0.0,
+    "carrier_blocking_note": "100% of DoH/3 queries (3,000 / 3,000) failed on Reliance Jio due to carrier middlebox blocking outbound UDP port 443."
+  },
+  "n7_workload_comparison": {
+    "airtel_mean_doh_drop_india_vs_global": -0.0318,
+    "jio_google_doh_drop_india_vs_global": -0.02,
+    "finding": "Indian regional workloads are systematically 2% to 6% less fingerprintable than global domains across both networks on Google DoH."
+  }
+}

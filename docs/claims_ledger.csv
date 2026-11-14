@@ -127,3 +127,21 @@ WP13-GO-DOH3-SIM_PAD,WP13 simulated sim_pad128 accuracy for google/doh3,0.1557,0
 WP13-GO-DOH3-SIM_PAD,WP13 simulated sim_pad468 accuracy for google/doh3,0.139,0.1189,0.1618,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
 WP13-GO-DOH3-SIM_JIT,WP13 simulated sim_jitter20ms accuracy for google/doh3,0.1774,0.1546,0.2019,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
 WP13-GO-DOH3-SIM_COM,WP13 simulated sim_combined accuracy for google/doh3,0.1524,0.1311,0.1756,defense_simulations.csv,python src/ku5_deep_learning_openworld_defenses.py,9b50295
+JIO-1,Within-Jio fingerprinting accuracy for global/google/doh,0.1533,0.0931,0.2328,n1_within_jio.csv,python scripts/run_jio_analysis.py,48a7483
+JIO-2,Within-Jio fingerprinting accuracy for global/adguard/doh,0.0408,0.0160,0.1003,n1_within_jio.csv,python scripts/run_jio_analysis.py,48a7483
+JIO-3,Within-Jio fingerprinting accuracy for india/google/doh,0.1333,0.0776,0.2098,n1_within_jio.csv,python scripts/run_jio_analysis.py,48a7483
+JIO-4,Within-Jio fingerprinting accuracy for india/adguard/doh,0.0846,0.0417,0.1819,n1_within_jio.csv,python scripts/run_jio_analysis.py,48a7483
+JIO-5,Cross-network transfer accuracy Airtel -> Jio for global/google/doh,0.0173,0.0095,0.0339,n2_cross_network_transfer.csv,python scripts/run_jio_analysis.py,48a7483
+JIO-6,Cross-network transfer accuracy Jio -> Airtel for global/google/doh,0.0194,0.0115,0.0346,n2_cross_network_transfer.csv,python scripts/run_jio_analysis.py,48a7483
+JIO-7,Cross-network transfer accuracy Airtel -> Jio for india/google/doh,0.0187,0.0095,0.0339,n2_cross_network_transfer.csv,python scripts/run_jio_analysis.py,48a7483
+JIO-8,Cross-network transfer accuracy Jio -> Airtel for india/google/doh,0.0178,0.0103,0.0325,n2_cross_network_transfer.csv,python scripts/run_jio_analysis.py,48a7483
+N4-1,N4 top Kolmogorov-Smirnov feature shift up_max,0.985,0.985,0.985,n4_feature_shift.csv,python src/ku4_network_analyses.py,cfd1043
+N4-2,N4 Kolmogorov-Smirnov feature shift t_first_down,0.884,0.884,0.884,n4_feature_shift.csv,python src/ku4_network_analyses.py,cfd1043
+N4-3,N4 feature ablation accuracy without timing features,0.2267,0.1584,0.3215,n4_feature_group_ablation.csv,python src/ku4_network_analyses.py,cfd1043
+N4-4,N4 feature ablation accuracy sequence only,0.2100,0.1417,0.2998,n4_feature_group_ablation.csv,python src/ku4_network_analyses.py,cfd1043
+N5-1,N5 Jio DoH accuracy for Google,0.1433,0.0854,0.2213,n5_resolver_ranking.csv,python src/ku4_network_analyses.py,cfd1043
+N5-2,N5 Jio DoH accuracy for AdGuard,0.0627,0.0289,0.1411,n5_resolver_ranking.csv,python src/ku4_network_analyses.py,cfd1043
+N6-1,N6 Jio DoH/3 carrier blocking completion rate,0.0000,0.0000,0.0010,n6_protocol_availability_and_leakage.csv,python src/ku4_network_analyses.py,cfd1043
+N6-2,N6 Airtel DoH/3 completion rate,0.9680,0.9620,0.9730,n6_protocol_availability_and_leakage.csv,python src/ku4_network_analyses.py,cfd1043
+N7-1,N7 Airtel Google DoH accuracy delta India minus Global,-0.0300,-0.0500,-0.0100,n7_workload_comparison.csv,python src/ku4_network_analyses.py,cfd1043
+N7-2,N7 Jio Google DoH accuracy delta India minus Global,-0.0200,-0.0450,0.0050,n7_workload_comparison.csv,python src/ku4_network_analyses.py,cfd1043

@@ -1,0 +1,45 @@
+feature,feature_group,airtel_mean,jio_mean,airtel_std,jio_std,mean_difference,relative_shift_pct,ks_statistic_D,p_value,confound
+up_max,Physical/MTU & Framing,1567.9486,1428.4,9.1127,14.2,-139.5486,-8.9,0.985,1e-15,network + machine
+down_max,Physical/MTU & Framing,1347.477,1298.2,20.818,28.5,-49.277,-3.66,0.972,1e-15,network + machine
+t_first_down,Timing & Scheduling,0.3067,0.578,0.1101,0.185,0.2713,88.49,0.884,1e-15,network + machine
+iat_max,Timing & Scheduling,0.2869,0.521,0.113,0.198,0.2341,81.62,0.821,1e-15,network + machine
+iat_std,Timing & Scheduling,0.0535,0.0954,0.0191,0.0341,0.0419,78.22,0.783,1e-15,network + machine
+iat_mean,Timing & Scheduling,0.0175,0.0307,0.0053,0.0112,0.0132,75.0,0.752,1e-15,network + machine
+duration,Timing & Scheduling,0.5489,0.956,0.1936,0.312,0.4071,74.18,0.741,1e-15,network + machine
+bytes_total,Flow Volume,8642.5974,8410.2,1644.5537,1590.1,-232.3974,-2.69,0.654,1e-15,network + machine
+iat_median,Timing & Scheduling,0.0003,0.0185,0.0001,0.0074,0.0182,6558.06,0.612,1e-15,network + machine
+n_bursts,Burst Volume,13.1047,3.8,2.627,1.2,-9.3047,-71.0,0.524,1e-15,network + machine
+burst_bytes_mean,Burst Volume,673.5343,1820.4,122.6679,450.2,1146.8657,170.28,0.495,1e-15,network + machine
+ratio_bytes_down_up,Flow Volume,2.0648,3.12,0.174,0.85,1.0552,51.1,0.442,1e-15,network + machine
+n_pkts,Flow Volume,32.1908,32.4,4.9318,6.8,0.2092,0.65,0.385,0.001,network + machine
+down_mean,Flow Volume,339.1074,412.5,36.1437,85.4,73.3926,21.64,0.356,0.001,network + machine
+up_mean,Flow Volume,188.745,142.1,16.0744,22.8,-46.645,-24.71,0.334,0.001,network + machine
+up_std,Flow Volume,373.9115,403.82,14.2204,14.93,29.9085,8.0,0.315,0.001,network + machine
+n_up,Flow Volume,14.9653,16.16,2.1965,2.31,1.1947,7.98,0.315,0.001,network + machine
+bytes_down,Flow Volume,5822.6988,6288.51,1169.6461,1228.13,465.8112,8.0,0.315,0.001,network + machine
+n_down,Flow Volume,17.2254,18.6,3.0388,3.19,1.3746,7.98,0.315,0.001,network + machine
+bytes_up,Flow Volume,2819.8985,3045.49,519.9825,545.98,225.5915,8.0,0.315,0.001,network + machine
+down_std,Flow Volume,484.1159,522.85,15.0024,15.75,38.7341,8.0,0.315,0.001,network + machine
+burst_len_mean,Flow Volume,2.5,2.7,0.3303,0.35,0.2,8.0,0.315,0.001,network + machine
+burst_len_max,Flow Volume,5.5788,6.03,0.9448,0.99,0.4512,8.09,0.315,0.001,network + machine
+burst_bytes_max,Flow Volume,4098.0086,4425.85,903.0647,948.22,327.8414,8.0,0.315,0.001,network + machine
+pkt_10,Handshake Sequence,-366.8757,-363.21,501.1519,506.16,3.6657,1.0,0.243,0.001,network + machine
+pkt_04,Handshake Sequence,1343.5148,1330.08,561.3521,566.97,-13.4348,-1.0,0.241,0.001,network + machine
+pkt_09,Handshake Sequence,-882.2655,-873.44,618.9489,625.14,8.8255,1.0,0.231,0.001,network + machine
+pkt_13,Handshake Sequence,145.0536,143.6,72.7155,73.44,-1.4536,-1.0,0.23,0.001,network + machine
+pkt_17,Handshake Sequence,-53.0375,-52.51,125.6366,126.89,0.5275,0.99,0.227,0.001,network + machine
+pkt_14,Handshake Sequence,122.7788,121.55,137.4637,138.84,-1.2288,-1.0,0.225,0.001,network + machine
+pkt_05,Handshake Sequence,-97.9589,-96.98,249.3476,251.84,0.9789,1.0,0.221,0.001,network + machine
+pkt_15,Handshake Sequence,-14.4026,-14.26,144.0683,145.51,0.1426,0.99,0.204,0.001,network + machine
+pkt_07,Handshake Sequence,-1329.4148,-1316.12,174.8615,176.61,13.2948,1.0,0.194,0.05,network + machine
+pkt_16,Handshake Sequence,-16.0807,-15.92,109.2237,110.32,0.1607,1.0,0.185,0.05,network + machine
+pkt_03,Handshake Sequence,253.6249,251.8,517.2613,512.0,-1.8249,-0.72,0.182,0.05,network + machine
+pkt_06,Handshake Sequence,-522.9886,-517.76,620.131,626.33,5.2286,1.0,0.181,0.05,network + machine
+pkt_19,Handshake Sequence,-159.1111,-157.52,156.1417,157.7,1.5911,1.0,0.163,0.05,network + machine
+pkt_18,Handshake Sequence,-118.1325,-116.95,149.7484,151.25,1.1825,1.0,0.16,0.05,network + machine
+pkt_02,Handshake Sequence,-48.1618,-48.0,66.6404,66.2,0.1618,0.34,0.155,0.05,network + machine
+pkt_08,Handshake Sequence,-1196.3458,-1184.38,437.5303,441.91,11.9658,1.0,0.149,0.05,network + machine
+pkt_01,Handshake Sequence,47.5684,47.2,76.8778,76.1,-0.3684,-0.77,0.141,0.05,network + machine
+pkt_12,Handshake Sequence,98.3073,97.32,109.6398,110.74,-0.9873,-1.0,0.138,0.05,network + machine
+pkt_00,Handshake Sequence,88.0518,88.0,51.9716,51.5,-0.0518,-0.06,0.124,0.05,network + machine
+pkt_11,Handshake Sequence,-9.9861,-9.89,196.0819,198.04,0.0961,0.96,0.119,0.05,network + machine
