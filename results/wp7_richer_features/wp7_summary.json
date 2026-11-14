@@ -1,0 +1,54 @@
+{
+  "final": {
+    "BASE": {
+      "mean_accuracy": 0.153489,
+      "std_accuracy": 0.096094,
+      "n_slices": 16,
+      "sig_slices": 16
+    },
+    "NGRAM": {
+      "mean_accuracy": 0.166141,
+      "std_accuracy": 0.089541,
+      "n_slices": 16,
+      "sig_slices": 16
+    },
+    "NGRAM+POST": {
+      "mean_accuracy": 0.165359,
+      "std_accuracy": 0.09115,
+      "n_slices": 16,
+      "sig_slices": 16
+    },
+    "POST_HS": {
+      "mean_accuracy": 0.157124,
+      "std_accuracy": 0.095006,
+      "n_slices": 16,
+      "sig_slices": 16
+    }
+  },
+  "pilot": {
+    "BASE": {
+      "mean_accuracy": 0.182946,
+      "std_accuracy": 0.115735,
+      "n_slices": 16,
+      "sig_slices": 14
+    },
+    "NGRAM": {
+      "mean_accuracy": 0.203245,
+      "std_accuracy": 0.131892,
+      "n_slices": 16,
+      "sig_slices": 14
+    },
+    "NGRAM+POST": {
+      "mean_accuracy": 0.203351,
+      "std_accuracy": 0.132346,
+      "n_slices": 16,
+      "sig_slices": 15
+    },
+    "POST_HS": {
+      "mean_accuracy": 0.197517,
+      "std_accuracy": 0.12876,
+      "n_slices": 16,
+      "sig_slices": 15
+    }
+  }
+}

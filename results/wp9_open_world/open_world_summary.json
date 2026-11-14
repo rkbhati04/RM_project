@@ -1,0 +1,26 @@
+{
+  "adguard_doh": {
+    "roc_auc": 0.7495,
+    "pr_auc": 0.4581,
+    "n_monitored": 20,
+    "n_unmonitored": 80
+  },
+  "adguard_doh3": {
+    "roc_auc": 0.5553,
+    "pr_auc": 0.2863,
+    "n_monitored": 20,
+    "n_unmonitored": 80
+  },
+  "quad9_doh": {
+    "roc_auc": 0.8267,
+    "pr_auc": 0.5844,
+    "n_monitored": 20,
+    "n_unmonitored": 80
+  },
+  "quad9_doh3": {
+    "roc_auc": 0.5986,
+    "pr_auc": 0.2831,
+    "n_monitored": 20,
+    "n_unmonitored": 80
+  }
+}

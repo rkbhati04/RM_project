@@ -48,7 +48,7 @@ data/raw/*
 !data/processed/
 data/processed/*
 !data/processed/dataset.csv
-results/
+!results/
 *.pcap
 *.pcapng
 
