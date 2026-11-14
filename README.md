@@ -8,86 +8,85 @@
 
 ---
 
-## 🌟 The Big Picture (In Plain English)
+## 1. Conceptual Overview
 
-### What is this project about?
-Whenever you type a website name like `wikipedia.org` or `bank.com` into your browser, your computer first asks a server: *"What is the numerical IP address for this website?"* This lookup process is called the **Domain Name System (DNS)**—often called the **"phonebook of the internet."**
+### Background
+When a user accesses a website (such as `wikipedia.org` or `bank.com`), the client device first queries a recursive resolver to translate the human-readable domain name into a routable numerical IP address. This lookup mechanism is governed by the **Domain Name System (DNS)**.
 
-Traditionally, these questions were sent in **plain text**. Anyone watching your network connection—your Internet Service Provider (ISP), a coffee shop Wi-Fi snooper, or a government agency—could read exactly which website you were visiting.
-
-```
-TRADITIONAL DNS (Unencrypted):
-You  ----------------- "Take me to bank.com" ------------------> DNS Server
-           (Anyone in the middle can read this in clear text)
-```
-
-To solve this, the networking industry created **Encrypted DNS**:
-1. **DoH (DNS-over-HTTPS):** Introduced around 2018. It locks your query inside an encrypted tunnel (using HTTP/2 over TCP).
-2. **DoH/3 (DNS-over-HTTP/3):** The modern upgrade introduced in 2022. It locks your query inside a cutting-edge protocol called **QUIC** (over UDP).
+Historically, standard DNS queries (RFC 1035) were transmitted unencrypted over UDP port 53. Under this model, any intermediate observer on the network path—including Internet Service Providers (ISPs), local network administrators, and surveillance entities—could inspect query names in cleartext.
 
 ```
-ENCRYPTED DNS (DoH / DoH/3):
-You  ==== [ Locked Encrypted Envelope: ???????? ] ====> DNS Server
-           (The contents inside the envelope are secret)
+Traditional DNS (Unencrypted):
+Client ----------------- "query: bank.com" ------------------> Recursive Resolver
+         (Intermediate network observers can read queries in cleartext)
+```
+
+To prevent eavesdropping and query tampering, encrypted DNS protocols were standardized:
+1. **DNS-over-HTTPS (DoH, RFC 8484):** Encapsulates DNS queries within TLS-secured HTTP/2 tunnels over TCP port 443.
+2. **DNS-over-HTTP/3 (DoH/3, RFC 9114):** Encapsulates DNS queries within QUIC-secured HTTP/3 tunnels over UDP port 443.
+
+```
+Encrypted DNS (DoH / DoH/3):
+Client ==== [ Encrypted Transport Tunnel: Ciphertext Payload ] ====> Recursive Resolver
+         (Query payloads are cryptographically protected against inspection)
 ```
 
 ---
 
-### The Problem: Can an eavesdropper still guess what you are doing?
-Imagine sending a letter in a locked box. An observer cannot open the box to read your letter, but they **can still weigh the box, measure its exact dimensions, and see how long it takes to arrive**. 
+### The Security Challenge: Side-Channel Traffic Analysis
+While payload encryption conceals raw query strings, transport-layer communication metadata remains visible on the wire.
 
-In network security, this is called a **Side-Channel Metadata Attack (or Traffic Fingerprinting)**:
-- Different websites produce slightly different response sizes and packet patterns.
-- An eavesdropper watching the encrypted connection can observe:
-  - How many packets were sent and received
-  - How big each packet was
-  - The exact timing and pauses between packets
-- By feeding these patterns into Machine Learning algorithms, an attacker can frequently **guess which website you are visiting—without ever decrypting the traffic!**
+An on-path adversary observing the encrypted channel can record side-channel transmission artifacts:
+- Aggregate byte volumes and directional packet counts
+- Packet size distributions and early handshake sequences
+- Inter-arrival times (IAT) and flow duration
 
----
-
-### What Did We Discover? (The Key Takeaways)
-
-We conducted a live, empirical study collecting over **26,800 real network queries** across two major real-world Indian networks: **Airtel Home Broadband (Wi-Fi 6)** and **Reliance Jio Mobile (4G/5G)**.
-
-Here is what we discovered:
-
-1. **The New Protocol (DoH/3) Significantly Improves Privacy on Most Resolvers:**
-   - On providers like **Cloudflare, AdGuard, and Quad9**, the new HTTP/3 protocol reduces an attacker's ability to identify your website by **62% to 86%**.
-   - *Why?* HTTP/3 enforces minimum packet padding (at least 1,200 bytes) and adds uniform control frames that act like bubble wrap, masking the unique size differences of small websites.
-
-2. **The "Google Anomaly": Implementation Matters More Than the Protocol:**
-   - On **Google's DNS server**, the new protocol did **not** improve privacy (the attacker guessed the website with ~17% accuracy on both the old and new protocols).
-   - Google's server sends unpadded responses whose sizes vary directly with the number of answer records, preserving a clear "fingerprint."
-
-3. **Broadband Attacks Fail Completely on Mobile Networks:**
-   - If an attacker trains an AI snooping tool on home Wi-Fi (Airtel) and tries to use it against a mobile user (Jio), **the attack collapses completely** (accuracy drops to 1.6%–2.4%, which is no better than random guessing).
-   - Cell towers constantly shuffle and delay radio packets, naturally scrambling the timing fingerprints that attackers rely on.
-
-4. **Mobile Carriers Actively Block the Modern Privacy Protocol:**
-   - On **Reliance Jio cellular**, **100% of our DoH/3 queries failed**.
-   - Jio's network middleboxes actively block or drop outbound UDP traffic on port 443. When this happens, your phone silently falls back to older, less private protocols.
+By applying supervised machine learning classifiers to these traffic signatures, an adversary can attempt to infer the queried domain name without breaking the underlying cryptographic primitives. This vulnerability is formally defined as **Website / Domain Traffic Fingerprinting**.
 
 ---
 
-## 📊 Summary of Core Results
+### Primary Empirical Findings
 
-| Public DNS Provider | Protocol | Website Fingerprint Accuracy (Top-1) | Privacy Protection Level |
-| :--- | :--- | :--- | :--- |
-| **Cloudflare** | Old DoH (HTTP/2) | **23.6%** | ⚠️ Moderate Leakage |
-| **Cloudflare** | **New DoH/3 (HTTP/3)** | **6.0%** | 🛡️ **Strong Privacy (75% leakage reduction)** |
-| **Quad9** | Old DoH (HTTP/2) | **34.2%** | ⚠️ High Leakage |
-| **Quad9** | **New DoH/3 (HTTP/3)** | **4.6%** | 🛡️ **Strongest Privacy (86% leakage reduction)** |
-| **AdGuard** | Old DoH (HTTP/2) | **26.2%** | ⚠️ Moderate Leakage |
-| **AdGuard** | **New DoH/3 (HTTP/3)** | **8.9%** | 🛡️ **Good Privacy (66% leakage reduction)** |
-| **Google** | Old DoH (HTTP/2) | **17.5%** | ⚠️ Moderate Leakage |
-| **Google** | **New DoH/3 (HTTP/3)** | **16.9%** | ⚠️ **Persistent Leakage (Unpadded responses)** |
+This study evaluates encrypted DNS traffic across **26,838 live queries** collected over two production Indian telecommunications networks: **Airtel Fiber FTTH (Wi-Fi 6)** and **Reliance Jio Cellular (4G/5G)**.
 
-*(Note: Random guessing among 100 websites equals 1.0% accuracy. Lower percentage means higher privacy).*
+1. **Protocol Resistance Divergence:**
+   - On Cloudflare, Quad9, and AdGuard, HTTP/3 (DoH/3) significantly suppresses metadata leakage compared to HTTP/2 (DoH), reducing top-1 classifier accuracy by **62% to 86%**.
+   - This reduction is driven by QUIC transport constraints, notably the mandatory Initial packet padding to $\ge 1200$ bytes and uniform frame multiplexing, which obscure small domain-length differentials.
+
+2. **Resolver Implementation Dependency (The Google Anomaly):**
+   - On Google's public resolver, DoH/3 fails to improve privacy resistance (classifier accuracy remains at 16.9% on DoH/3 versus 17.5% on DoH).
+   - Packet inspections reveal that Google's implementation transmits unpadded response payloads that scale directly with answer record counts, preserving distinguishable packet-size signatures.
+
+3. **Cross-Network Transfer Failure:**
+   - Classifiers trained on broadband optical fiber (Airtel) fail completely when evaluated against cellular traces (Jio), with accuracy falling to **1.6%–2.4%** (statistically equivalent to the 2.0% random baseline).
+   - Two-sample Kolmogorov-Smirnov tests confirm substantial distribution shifts ($p < 10^{-6}$) caused by cellular radio scheduling delays, jitter, and MTU variations.
+
+4. **Middlebox Deployment Impediments:**
+   - On Reliance Jio cellular networks, 100% of outbound DoH/3 queries ($3,000 / 3,000$) failed due to packet drops.
+   - Core cellular middleboxes actively filter outbound UDP traffic on port 443, silently forcing client applications to fall back to older, higher-leakage transport protocols.
 
 ---
 
-## 🛠️ Research Methodology & Technical Architecture
+## 2. Quantitative Results Summary
+
+The table below presents closed-world domain identification performance across 100 target domains (50 Global Tranco, 50 Indian regional services). Chance baseline accuracy for a 100-class random guess is 1.0%.
+
+| Upstream Resolver | Transport Protocol | Top-1 Accuracy | 95% Wilson Confidence Interval | Leakage Assessment |
+| :--- | :--- | :--- | :--- | :--- |
+| **Cloudflare** | DoH (HTTP/2) | **23.6%** | [21.5%, 25.8%] | Moderate Leakage |
+| **Cloudflare** | **DoH/3 (HTTP/3)** | **6.0%** | [4.7%, 7.6%] | **Low Leakage (75% Reduction)** |
+| **Quad9** | DoH (HTTP/2) | **34.2%** | [31.8%, 36.6%] | High Leakage |
+| **Quad9** | **DoH/3 (HTTP/3)** | **4.6%** | [3.5%, 6.0%] | **Low Leakage (86% Reduction)** |
+| **AdGuard** | DoH (HTTP/2) | **26.2%** | [24.1%, 28.5%] | Moderate Leakage |
+| **AdGuard** | **DoH/3 (HTTP/3)** | **8.9%** | [7.4%, 10.7%] | **Moderate-Low Leakage (66% Reduction)** |
+| **Google** | DoH (HTTP/2) | **17.5%** | [15.6%, 19.5%] | Moderate Leakage |
+| **Google** | **DoH/3 (HTTP/3)** | **16.9%** | [15.1%, 18.9%] | **Persistent Leakage (Unpadded Responses)** |
+
+*All evaluations utilize leave-repeat-out temporal cross-validation with 200 label-permutation baseline tests ($p < 0.005$).*
+
+---
+
+## 3. Experimental Architecture & Methodology
 
 ```
 +-----------------------------------------------------------------------------------------+
@@ -95,9 +94,9 @@ Here is what we discovered:
 +-----------------------------------------------------------------------------------------+
                                  
      [ Workload Generator ]           [ Network Layer Capture ]          [ Upstream Resolvers ]
-     100 Popular Domains:              dumpcap & tshark                   - Cloudflare (1.1.1.1)
-     - 50 Top Global (Tranco)          Raw PCAP per query                 - Google (8.8.8.8)
-     - 50 Top India (.in / regional)   Synchronous packet flush           - AdGuard
+     100 Pinned Domains:               dumpcap / tshark                   - Cloudflare (1.1.1.1)
+     - 50 Global (Tranco L5PV4)        Per-query PCAP generation          - Google (8.8.8.8)
+     - 50 Indian (.in / regional)      Synchronous packet flush           - AdGuard
                                                                           - Quad9 (9.9.9.9)
                 |                                      |                              |
                 v                                      v                              v
@@ -106,46 +105,46 @@ Here is what we discovered:
       - HTTP/3 (DoH/3)                - Jio Cellular (USB Tether)        - UDP port 443
 ```
 
-### Key Technical Controls
-- **Zero Label Leakage:** IP addresses, port numbers, SNI strings, and domain names are strictly excluded from feature extraction. Only traffic shape metadata is used.
-- **Strict Temporal Validation:** Models are evaluated using leave-repeat-out temporal splits to prevent artificial correlation.
-- **Empirical Significance:** Every finding is verified against 200 label-permutation baseline tests ($p < 0.005$) and reported with 95% Wilson score confidence intervals.
-- **Machine Learning Suite:** Evaluated Random Forest, XGBoost, 1D-CNN (sequence), GRU (recurrent), open-world detection, scaling curves, and simulated defense mechanisms.
+### Methodological Controls
+- **Zero Label Leakage:** IP addresses, port numbers, SNI strings, and protocol headers are excluded from feature vectors. Models learn exclusively from physical traffic dynamics.
+- **Temporal Integrity:** Training and evaluation partitions are divided strictly across query repeats to prevent autocorrelation across burst intervals.
+- **Statistical Baselines:** Empirical significance is established against 200 permutation shuffles, confirming that measured predictive power exceeds random chance.
+- **Model Suite:** Evaluates Random Forest, XGBoost, 1D-CNN (packet sequence), GRU (recurrent sequence), open-world evaluation, domain scaling curves, and simulated defense perturbations.
 
 ---
 
-## 📁 Repository Directory Structure
+## 4. Repository Structure
 
 ```
-├── presentation.md            <- Complete conference slide deck & word-for-word speaker notes
-├── README.md                  <- This comprehensive project documentation
-├── requirements.txt           <- Python dependencies
-├── to-do.md                   <- Comprehensive project verification & completion checklist
+├── presentation.md            <- 12-slide Marp-compatible conference presentation and scripts
+├── README.md                  <- Project documentation, methodology, and execution instructions
+├── requirements.txt           <- Python environment dependencies
+├── to-do.md                   <- Comprehensive project verification checklist
 ├── docs/
-│   ├── PAPER_DRAFT.md         <- Complete academic research paper draft
-│   ├── PRESENTATION_SLIDES.md <- Slide layouts, figures, and presentation notes
-│   ├── claims_ledger.csv      <- Cryptographically mapped ledger of all 24 empirical claims
-│   └── CAPTURE_COMMANDS.md    <- Runbook for live data collection
+│   ├── PAPER_DRAFT.md         <- Full academic research paper draft (9 sections, 9 tables)
+│   ├── PRESENTATION_SLIDES.md <- Slide deck content, layouts, and speaker documentation
+│   ├── claims_ledger.csv      <- Cryptographic verification ledger mapping all 24 claims
+│   └── CAPTURE_COMMANDS.md    <- Measurement runbook and execution parameters
 ├── results/
-│   ├── figures/               <- Publication figures (DoH vs DoH/3, Transfer, Blocking, Shifts)
+│   ├── figures/               <- Publication figures (Vector PNGs for paper and slides)
 │   ├── airtel_all_20261113/   <- WP7-WP11 & WP13 analysis tables and scaling curves
-│   └── jio_analysis_20261113/ <- N1-N8 cross-network transfer and distribution shift results
+│   └── jio_analysis_20261113/ <- N1-N8 cross-network transfer and distribution shift tables
 ├── scripts/
 │   ├── plot_slide_figures.py  <- Generates the 4 publication slide figures
-│   ├── run_airtel_all.py      <- Master runner for all Airtel analyses (WP7-WP11, WP13)
-│   ├── run_jio_analysis.py    <- Master runner for Jio & cross-network analyses (N1-N8)
-│   └── run_jio_capture.sh     <- Automated 6,000-query Jio cellular capture testbed
+│   ├── run_airtel_all.py      <- Execution runner for Airtel analyses (WP7-WP11, WP13)
+│   ├── run_jio_analysis.py    <- Execution runner for Jio and cross-network analyses (N1-N8)
+│   └── run_jio_capture.sh     <- Automated 6,000-query Jio cellular testbed harness
 └── src/
-    ├── probe_and_capture.py   <- Synchronous DNS probe and dumpcap capture engine
-    ├── extract_features.py    <- 39-feature network flow extractor
-    └── encdns/                <- Analysis library (fingerprinting, baselines, ledger)
+    ├── probe_and_capture.py   <- Synchronous probe and dumpcap capture orchestrator
+    ├── extract_features.py    <- 39-feature network flow extraction module
+    └── encdns/                <- Analysis package (fingerprinting, baselines, ledger)
 ```
 
 ---
 
-## 🚀 Quickstart & Reproduction Guide
+## 5. Setup & Reproduction Instructions
 
-### 1. Environment Setup
+### 5.1 Environment Configuration
 
 ```bash
 # Clone the repository and switch to branch aman
@@ -155,69 +154,69 @@ git checkout aman
 python3 -m venv .venv
 source .venv/bin/activate       # On Windows: .\.venv\Scripts\Activate.ps1
 
-# Install required dependencies
+# Install project dependencies
 pip install -r requirements.txt
 ```
 
-### 2. External Tools
-- **Dumpcap & Tshark (Wireshark CLI):**
+### 5.2 Required System Utilities
+- **Packet Capture CLI:** `dumpcap` and `tshark` (Wireshark suite)
   - macOS: `brew install wireshark`
   - Linux: `sudo apt install tshark`
-- **`q` DNS Client:** Available from [natesales/q releases](https://github.com/natesales/q/releases).
+- **DNS Client:** `q` DNS client (version 0.19.12+) available from [natesales/q](https://github.com/natesales/q/releases).
 
 ---
 
-### 3. Reproducing the Analysis in Under 6 Minutes
+### 5.3 Automated Analysis Execution
 
-All raw capture datasets have been processed into reproducible feature tables (`data/processed/`). You can re-run the entire empirical analysis suite with three commands:
+Preprocessed, zero-leakage feature tables are maintained in `data/processed/`. The entire analytical pipeline can be executed deterministically in under 6 minutes:
 
 ```bash
-# Step 1: Run all Airtel analysis modules (WP7 to WP11, and WP13)
+# Step 1: Run Airtel analysis modules (WP7 to WP11, and WP13)
 python3 scripts/run_airtel_all.py
 
-# Step 2: Run all Jio & Cross-Network analysis modules (N1 to N8)
+# Step 2: Run Jio and Cross-Network analysis modules (N1 to N8)
 python3 scripts/run_jio_analysis.py
 
-# Step 3: Generate all publication-ready slide and paper figures
+# Step 3: Generate publication-ready figures
 python3 scripts/plot_slide_figures.py
 ```
 
-All output tables and figures will be generated deterministically under `results/airtel_all_20261113/`, `results/jio_analysis_20261113/`, and `results/figures/`.
+All analytical outputs, summary tables, and visualizations will be written to `results/airtel_all_20261113/`, `results/jio_analysis_20261113/`, and `results/figures/`.
 
 ---
 
-### 4. Running the Test Suite
+### 5.4 Test Suite Verification
 
 ```bash
-# Run automated regression tests (10/10 tests pass)
+# Run automated regression test suite (10/10 tests pass)
 python3 -m unittest discover tests
 ```
 
 ---
 
-## 📄 Key Project Deliverables
+## 6. Project Deliverables
 
-- **Academic Paper Draft:** [docs/PAPER_DRAFT.md](docs/PAPER_DRAFT.md) — Complete 9-section conference paper with 9 tables, methodology, ethics, and related work.
-- **Presentation Slide Deck:** [presentation.md](presentation.md) — 12-slide Marp-compatible slide deck complete with word-for-word speaker notes.
-- **Empirical Claims Ledger:** [docs/claims_ledger.csv](docs/claims_ledger.csv) — Every number cited in the paper and slides is mapped to reproducible CSV outputs.
+- **Academic Paper Draft:** [docs/PAPER_DRAFT.md](docs/PAPER_DRAFT.md) — Comprehensive academic research paper complete with Related Work, Threat Model, Methodology, Empirical Evaluation, Limitations, and Ethics.
+- **Conference Presentation Deck:** [presentation.md](presentation.md) — 12-slide Marp-compatible presentation deck containing layout specifications, embedded figures, and word-for-word speaker notes.
+- **Empirical Claims Ledger:** [docs/claims_ledger.csv](docs/claims_ledger.csv) — Auditable ledger mapping every statistical claim directly to pipeline execution outputs.
 - **Publication Figures:**
   - [Figure 1: DoH vs. DoH/3 Leakage Comparison](results/figures/fig1_headline_doh_vs_doh3.png)
   - [Figure 2: Cross-Network Transfer Collapse](results/figures/fig2_cross_network_transfer.png)
-  - [Figure 3: Carrier-Level QUIC Blocking on Jio](results/figures/fig3_carrier_quic_blocking.png)
-  - [Figure 4: Feature Distribution Shifts (Broadband vs. Cellular)](results/figures/fig4_feature_distribution_shift.png)
+  - [Figure 3: Carrier-Level QUIC Blocking on Jio Cellular](results/figures/fig3_carrier_quic_blocking.png)
+  - [Figure 4: Feature Distribution Shifts Across Network Tiers](results/figures/fig4_feature_distribution_shift.png)
 
 ---
 
-## 🔒 Ethical Considerations & Open Science
+## 7. Ethics & Research Integrity
 
-- **Passive Observational Study:** No payload decryption, man-in-the-middle interception, or attack against external servers was performed.
-- **Privacy Compliance:** No personally identifiable information (PII), credentials, private IP addresses, or raw packet payloads are stored in Git.
-- **Reproducibility:** All seeds are fixed (`17`, `42`, `101`), and all evaluation steps are fully automated via open-source scripts.
+- **Passive Observational Framework:** All traffic captures were conducted passively against client-initiated queries. No payload modification, injection, or decryption was performed.
+- **Data Privacy:** Raw PCAP files, proprietary network identifiers, credentials, and local IP addresses are excluded from version control per `.gitignore`.
+- **Reproducibility:** Seed configurations (`17`, `42`, `101`) and data pipelines are fully deterministic and automated.
 
 ---
 
-## 👥 Authors & Acknowledgments
+## 8. Authors & Institutional Affiliation
 
 - **Aman Kashyap** (`iit2024140@iiita.ac.in`)  
   Department of Information Technology, Indian Institute of Information Technology, Allahabad.  
-- Research Methodology Coursework, November 2026.
+- Coursework in Research Methodology, November 2026.
