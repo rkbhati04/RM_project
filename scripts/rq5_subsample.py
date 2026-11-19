@@ -37,7 +37,7 @@ def main():
         subset = global_rows[global_rows.domain.isin(selected)]
         for (resolver, protocol), group in subset.groupby(["resolver", "protocol"]):
             result = evaluate(group, [17] if args.smoke else [17, 42, 101],
-                              0 if args.smoke else 200, 100)
+                              0, 100)
             if not result or result["n"] != 790 or result["domains"] != 79:
                 raise ValueError(f"Incomplete draw {draw} for {resolver}/{protocol}")
             scores.append((resolver, protocol, result["accuracy"]))

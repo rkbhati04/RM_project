@@ -136,6 +136,25 @@
 
 ---
 
+## Slide 6a: RQ5: Global and India fingerprinting at 79 classes
+
+| Resolver | Protocol | Global mean | Global 95% draw interval | India accuracy |
+|---|---|---:|---:|---:|
+| AdGuard | DoH | 29.94% | 26.87%–32.00% | 22.78% |
+| AdGuard | DoH/3 | 8.93% | 7.81%–10.59% | 10.51% |
+| Cloudflare | DoH | 23.97% | 21.80%–25.34% | 21.48% |
+| Cloudflare | DoH/3 | 6.03% | 5.06%–7.10% | 6.03% |
+| Google | DoH | 18.35% | 16.55%–19.81% | 16.08% |
+| Google | DoH/3 | 18.46% | 15.93%–20.41% | 14.05% |
+| Quad9 | DoH | 38.05% | 36.28%–41.16% | 35.74% |
+| Quad9 | DoH/3 | 4.86% | 3.68%–5.63% | 5.23% |
+
+Each Global draw sampled 79 of 99 domains. The interval spans the middle 95% of 20 draw accuracies, each averaged over three fit seeds. India uses the same 79 domains throughout.
+
+At 79 classes, mean Global DoH accuracy exceeded India accuracy for all four resolvers. For DoH/3, the Global mean was lower for AdGuard and Quad9, equal to India at the reported precision for Cloudflare, and higher for Google.
+
+---
+
 ## Slide 7: RQ3 — What Drives Leakage? (Feature Ablation & Deep Learning)
 
 ### [Slide Layout]

@@ -221,9 +221,24 @@ Table 1 presents the headline fingerprinting accuracy for all 16 resolver–prot
 
 4. **Quad9 DoH is the most fingerprintable.** Quad9's HTTP/2 accuracy of 0.344 (global) is the highest on the Global workload, suggesting that Quad9's response structure — possibly response size or timing characteristics — is particularly distinguishing.
 
-5. RQ5 compares 79 India domains with 20 fixed-seed draws of 79 of the 99 Global domains. Per-resolver and per-protocol means and empirical 95% intervals across draws will be filled after the full run writes `results/airtel_shared_20261116/rq5_subsampled.csv`.
+5. At 79 classes, mean Global DoH accuracy exceeded India accuracy for all four resolvers. For DoH/3, the Global mean was lower for AdGuard and Quad9, equal to India at the reported precision for Cloudflare, and higher for Google.
 
 6. **Accuracy is 13–34× above chance** for the best-performing slices (DoH), and 4–17× above chance for DoH/3, confirming that QUIC does not eliminate fingerprintability.
+
+#### RQ5: Global and India fingerprinting at 79 classes
+
+We sampled 79 of the 99 Global domains in each of 20 draws and compared them with the fixed 79-domain India set. Each accuracy averages three fit seeds (17, 42 and 101). The Global interval spans the 2.5th and 97.5th percentiles of the 20 draw accuracies.
+
+| Resolver | Protocol | Global mean | Global 95% draw interval | India accuracy |
+|---|---|---:|---:|---:|
+| AdGuard | DoH | 29.94% | 26.87%–32.00% | 22.78% |
+| AdGuard | DoH/3 | 8.93% | 7.81%–10.59% | 10.51% |
+| Cloudflare | DoH | 23.97% | 21.80%–25.34% | 21.48% |
+| Cloudflare | DoH/3 | 6.03% | 5.06%–7.10% | 6.03% |
+| Google | DoH | 18.35% | 16.55%–19.81% | 16.08% |
+| Google | DoH/3 | 18.46% | 15.93%–20.41% | 14.05% |
+| Quad9 | DoH | 38.05% | 36.28%–41.16% | 35.74% |
+| Quad9 | DoH/3 | 4.86% | 3.68%–5.63% | 5.23% |
 
 ### 5.2 Jio Cellular Results (N1 & N8)
 

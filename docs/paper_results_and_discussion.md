@@ -39,6 +39,23 @@ Using per-slice domain sets instead of the shared set changed accuracy by at mos
 2. **The Google Anomaly:** Google DNS is the sole resolver where DoH and DoH/3 show near-identical vulnerability (16.53% vs 17.10%). This parity stems from Google's highly standardized frontend edge infrastructure, which enforces uniform EDNS0 padding and standardized HTTP/2 and HTTP/3 buffer packing, dampening the accidental padding effect of QUIC frames.
 3. **Effect Over Name Length:** On Global DoH, full-model accuracy minus length-only accuracy ranges from −2.66 points (Google) to +15.19 points (Quad9). On Global DoH/3 the difference ranges from −14.44 points (Quad9) to −2.12 points (Google).
 
+#### RQ5: Global and India fingerprinting at 79 classes
+
+We sampled 79 of the 99 Global domains in each of 20 draws and compared them with the fixed 79-domain India set. Each accuracy averages three fit seeds (17, 42 and 101). The Global interval spans the 2.5th and 97.5th percentiles of the 20 draw accuracies.
+
+| Resolver | Protocol | Global mean | Global 95% draw interval | India accuracy |
+|---|---|---:|---:|---:|
+| AdGuard | DoH | 29.94% | 26.87%–32.00% | 22.78% |
+| AdGuard | DoH/3 | 8.93% | 7.81%–10.59% | 10.51% |
+| Cloudflare | DoH | 23.97% | 21.80%–25.34% | 21.48% |
+| Cloudflare | DoH/3 | 6.03% | 5.06%–7.10% | 6.03% |
+| Google | DoH | 18.35% | 16.55%–19.81% | 16.08% |
+| Google | DoH/3 | 18.46% | 15.93%–20.41% | 14.05% |
+| Quad9 | DoH | 38.05% | 36.28%–41.16% | 35.74% |
+| Quad9 | DoH/3 | 4.86% | 3.68%–5.63% | 5.23% |
+
+At 79 classes, mean Global DoH accuracy exceeded India accuracy for all four resolvers. For DoH/3, the Global mean was lower for AdGuard and Quad9, equal to India at the reported precision for Cloudflare, and higher for Google. Global draw summaries are recorded in `results/airtel_shared_20261116/rq5_subsampled.csv`.
+
 ---
 
 ### 4.2 Impact of Richer Sequential and Structural Features (WP7)
