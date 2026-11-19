@@ -1,0 +1,24 @@
+{
+  "config_sha256": "420a9f7ef33f395bcea190eec093d832505f4b90f507ad36d5c7b2de2c47136d",
+  "dataset_sha256": "646bf3c8599ef7db3ae28c8634b705700fb16da950dfc8869d79f4266cce7682",
+  "domain_counts": {
+    "global": {
+      "k10": 99,
+      "k8": 99
+    },
+    "india": {
+      "k10": 79,
+      "k8": 79
+    }
+  },
+  "headline_folds": "5 folds, 2 repeats held out",
+  "null_trees": 50,
+  "permutations": 200,
+  "platform": "Windows-10-10.0.26300-SP0",
+  "python": "3.11.9",
+  "q_version": null,
+  "real_trees": 100,
+  "target_k": 10,
+  "timestamp_utc": "2026-11-16T15:24:38.732801+00:00",
+  "tshark_version": "TShark (Wireshark) 4.6.9 (v4.6.9-0-g2d548b197c75)."
+}
