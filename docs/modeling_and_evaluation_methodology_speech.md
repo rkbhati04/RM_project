@@ -26,13 +26,11 @@ The purpose of using two models is not simply to select the model with the highe
 
 The second part is the data split.
 
-We use **leave-one-repeat-out cross-validation**. The dataset contains repeated captures of the same domains and protocols. For one round, we train on the available repeats and hold out one complete repeat for testing. We then rotate the held-out repeat and repeat the process.
-
-For example, if we have three captures of a domain, we might train using repeats zero and one, and test on repeat two. In the next round, a different repeat becomes the test set.
+The headline analysis retains 99 Global and 79 India domains with at least 10 successful repeats in all eight resolver × protocol slices during repeats 8–19. Each slice uses exactly 10 repeats per domain. The run metadata specifies five folds with two repeats held out per fold. The evaluator pairs the 11–12 distinct repeat IDs retained across domains in each slice, yielding six folds in all 16 slices.
 
 This is important because repeated captures can be very similar. If one capture from the same repeated run appears in the training set and another almost identical capture appears in the test set, the model may memorize the recording conditions instead of learning a general traffic fingerprint. That would produce an artificially high score.
 
-By holding out one entire repeat, we keep repeated or near-duplicate captures separated between training and testing. The test data therefore represents a new observation of the same experimental conditions rather than a copy of a training example.
+By holding out repeat IDs together, we keep repeated or near-duplicate captures separated between training and testing. The test data therefore represents a new observation of the same experimental conditions rather than a copy of a training example.
 
 This split also matches the research question. We want to know whether an attacker can recognize a protocol or domain from a new capture, not whether a model can recognize a trace that is almost identical to one it has already seen.
 
@@ -40,11 +38,11 @@ This split also matches the research question. We want to know whether an attack
 
 The third part is the significance test.
 
-A classifier can produce an accuracy value even when there is no meaningful relationship between the features and the labels. To measure whether the observed accuracy is real, we create a null baseline using **100 label permutations**.
+A classifier can produce an accuracy value even when there is no meaningful relationship between the features and the labels. To measure whether the observed accuracy is real, we create a null baseline using **200 label permutations**.
 
 In each permutation, the traffic features stay exactly the same, but the labels are randomly shuffled. The model is then trained and evaluated on these incorrect labels. Because the labels no longer correspond to the traffic, these runs estimate the accuracy we could obtain by chance under the same data size, model, and evaluation procedure.
 
-The 100 permutation results form a null distribution. We take the 95th percentile of that distribution as a conservative threshold. We call the leakage evidence supported only when the real-label accuracy is higher than this 95th-percentile baseline.
+The observed fit uses 100 trees and the null fit uses 50. None of the 200 label permutations matched the observed accuracy in any headline slice. The minimum corrected p-value is 1/201 (p < 0.005).
 
 This test is stronger than comparing accuracy only with a simple chance value. For example, in a perfectly balanced 50-class problem, the theoretical chance level might be two percent. But the actual dataset may be imbalanced, repeated, or affected by the split structure. The permutation baseline captures those practical effects.
 
@@ -71,8 +69,8 @@ It is important to remember that the direction depends on the metric. For an att
 To summarize the methodology:
 
 1. Random Forest is the primary model for tabular traffic features, and XGBoost provides an independent comparison.
-2. Leave-one-repeat-out validation prevents repeated captures from leaking between training and testing.
-3. One hundred label permutations create a practical chance baseline, and leakage is accepted only when the real result exceeds its 95th percentile.
+2. The evaluation holds out pairs of repeat IDs.
+3. The significance test compares the observed fit with 200 label permutations.
 4. Top-1, Top-5, macro-F1, confidence intervals, and chance-adjusted resistance together describe both attack performance and statistical reliability.
 
 This methodology ensures that any reported leakage is not simply an artifact of duplicated captures, class imbalance, or random chance. It gives us a more credible comparison of how much privacy each encrypted DNS protocol provides.

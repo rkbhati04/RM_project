@@ -36,17 +36,13 @@ plt.rcParams.update({
 
 
 def plot_headline_airtel():
-    # Data from claims ledger
     resolvers = ["AdGuard", "Cloudflare", "Google", "Quad9"]
-    
-    # Global workload
-    doh_global = [0.262, 0.236, 0.175, 0.342]
-    doh3_global = [0.089, 0.060, 0.169, 0.046]
-    
-    # India workload
-    doh_india = [0.233, 0.195, 0.148, 0.310]
-    doh3_india = [0.092, 0.053, 0.101, 0.051]
-    
+    table = pd.read_csv(ROOT / "results/airtel_shared_20261116/rq1_rq2_fingerprinting.csv")
+    accuracy = table.pivot(index="resolver", columns=["workload", "protocol"], values="accuracy")
+    accuracy = accuracy.loc[[name.lower() for name in resolvers]]
+    doh_global, doh3_global = accuracy["global"]["doh"], accuracy["global"]["doh3"]
+    doh_india, doh3_india = accuracy["india"]["doh"], accuracy["india"]["doh3"]
+
     x = np.arange(len(resolvers))
     width = 0.35
     
@@ -55,8 +51,8 @@ def plot_headline_airtel():
     # Global subplot
     axes[0].bar(x - width/2, doh_global, width, label="DoH (HTTP/2)", color="#1f77b4", edgecolor="black", alpha=0.9)
     axes[0].bar(x + width/2, doh3_global, width, label="DoH/3 (QUIC)", color="#ff7f0e", edgecolor="black", alpha=0.9)
-    axes[0].axhline(0.010, color="red", linestyle="--", linewidth=1.5, label="Chance (1/100 = 1%)")
-    axes[0].set_title("Global Workload (100 domains)")
+    axes[0].axhline(1/99, color="red", linestyle="--", linewidth=1.5, label="Chance (1/99 = 1.01%)")
+    axes[0].set_title("Global Workload (99 domains)")
     axes[0].set_xticks(x)
     axes[0].set_xticklabels(resolvers)
     axes[0].set_ylabel("Fingerprinting Accuracy")
@@ -66,8 +62,8 @@ def plot_headline_airtel():
     # India subplot
     axes[1].bar(x - width/2, doh_india, width, label="DoH (HTTP/2)", color="#1f77b4", edgecolor="black", alpha=0.9)
     axes[1].bar(x + width/2, doh3_india, width, label="DoH/3 (QUIC)", color="#ff7f0e", edgecolor="black", alpha=0.9)
-    axes[1].axhline(0.010, color="red", linestyle="--", linewidth=1.5, label="Chance (1/100 = 1%)")
-    axes[1].set_title("Indian Regional Workload (100 domains)")
+    axes[1].axhline(1/79, color="red", linestyle="--", linewidth=1.5, label="Chance (1/79 = 1.27%)")
+    axes[1].set_title("Indian Regional Workload (79 domains)")
     axes[1].set_xticks(x)
     axes[1].set_xticklabels(resolvers)
     axes[1].legend(loc="upper left")

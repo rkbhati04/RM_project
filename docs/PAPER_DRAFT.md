@@ -8,7 +8,7 @@
 
 ## Abstract
 
-Encrypted DNS protocols — DNS-over-HTTPS (DoH, RFC 8484) and its successor over QUIC (DoH/3, RFC 9250-class) — aim to prevent passive observers from learning which domains a user queries. We ask whether traffic metadata alone (packet counts, sizes, timing, burst structure) is sufficient to fingerprint the queried domain, and whether the choice of transport (HTTP/2 vs. QUIC) materially affects fingerprintability. We collected 18,926 feature-labelled DNS flow traces across four public resolvers (AdGuard, Cloudflare, Google, Quad9), two domain workloads (global top-100, India top-100), and both DoH and DoH/3 protocols from an Airtel (Indian ISP) vantage point. Using a Random Forest classifier with leave-repeat-out evaluation and 200-permutation significance tests, we find that all 16 resolver–protocol–workload slices are significantly above chance (p < 0.005). DoH (HTTP/2) accuracy ranges from 0.148 to 0.342; DoH/3 (QUIC) accuracy ranges from 0.046 to 0.169. The transport matters: for most resolvers, QUIC substantially reduces fingerprintability, but Google DoH/3 is a notable exception. Aggregate flow features (counts, byte totals, burst statistics) outperform raw packet-sequence models (CNN, GRU) and n-gram baselines. Cross-session time stability is low (0.04–0.11), suggesting that fingerprinting models degrade quickly across collection windows. Simulated defences indicate that constant-rate padding offers modest accuracy reductions, while random padding and delay jitter are largely ineffective. *(Jio results and cross-network analysis pending.)*
+Encrypted DNS protocols — DNS-over-HTTPS (DoH, RFC 8484) and its successor over QUIC (DoH/3, RFC 9250-class) — aim to prevent passive observers from learning which domains a user queries. We ask whether traffic metadata alone (packet counts, sizes, timing, burst structure) is sufficient to fingerprint the queried domain, and whether the choice of transport (HTTP/2 vs. QUIC) materially affects fingerprintability. We collected 18,926 feature-labelled DNS flow traces across four public resolvers (AdGuard, Cloudflare, Google, Quad9), two domain workloads (global top-100, India top-100), and both DoH and DoH/3 protocols from an Airtel (Indian ISP) vantage point. Using a Random Forest classifier with leave-repeat-out evaluation and 200-permutation significance tests, we find that all 16 resolver–protocol–workload slices are significantly above chance (p < 0.005). DoH (HTTP/2) accuracy ranges from 0.161 to 0.357; DoH/3 (QUIC) accuracy ranges from 0.046 to 0.171. The transport matters: for most resolvers, QUIC substantially reduces fingerprintability, but Google DoH/3 is a notable exception. Aggregate flow features (counts, byte totals, burst statistics) outperform raw packet-sequence models (CNN, GRU) and n-gram baselines. Cross-session time stability is low (0.04–0.11), suggesting that fingerprinting models degrade quickly across collection windows. Simulated defences indicate that constant-rate padding offers modest accuracy reductions, while random padding and delay jitter are largely ineffective. *(Jio results and cross-network analysis pending.)*
 
 ---
 
@@ -25,11 +25,11 @@ This paper extends that line of inquiry in two principal directions. First, we e
 - **RQ1 (Closed-world fingerprintability):** Can a passive observer, observing only packet metadata of an encrypted DNS flow, identify the queried domain among a known candidate set?
 - **RQ2 (Protocol comparison):** Does DoH/3 (QUIC) offer materially less fingerprintability than DoH (HTTP/2)?
 - **RQ3 (Resolver variation):** How much does resolver choice (AdGuard, Cloudflare, Google, Quad9) affect fingerprintability?
-- **RQ4 (Workload variation):** Does the domain workload (global top-100 vs. India top-100) affect results?
-- **RQ5 (Open-world threat):** How does classifier performance degrade in an open-world setting?
+- **RQ4 (Airtel vs Jio):** How well do fingerprints transfer between the two networks on the same domains?
+- **RQ5 (Workload variation):** How does fingerprintability differ between Global and India workloads at 79 classes?
 - **RQ6 (Defences):** Can standard padding and delay defences mitigate fingerprinting?
 
-**Summary of findings.** All 16 resolver–protocol–workload combinations are significantly above-chance (p < 0.005). DoH HTTP/2 accuracy spans 0.148–0.342 (vs. chance 0.010 at 100 classes). DoH/3 accuracy spans 0.046–0.169. For three of four resolvers, switching to QUIC reduces fingerprintability substantially; Google DoH/3 is a notable exception, achieving accuracy close to its DoH counterpart. Aggregate features outperform sequence models. Cross-session accuracy drops sharply, suggesting temporal fragility of learned fingerprints. Simulated constant-rate padding provides modest defence; random padding and jitter do not.
+**Summary of findings.** All 16 resolver–protocol–workload combinations are significantly above-chance (p < 0.005). DoH HTTP/2 accuracy spans 0.161–0.357 (vs. chance 0.010 Global and 0.013 India). DoH/3 accuracy spans 0.046–0.171. For three of four resolvers, switching to QUIC reduces fingerprintability substantially; Google DoH/3 is a notable exception, achieving accuracy close to its DoH counterpart. Aggregate features outperform sequence models. Cross-session accuracy drops sharply, suggesting temporal fragility of learned fingerprints. Simulated constant-rate padding provides modest defence; random padding and jitter do not.
 
 **Contributions:**
 
@@ -79,7 +79,7 @@ We consider a **passive on-path adversary** positioned between the client machin
 
 **Adversary goal.** The adversary aims to infer which domain was queried in a given flow. We study two settings:
 
-- **Closed-world:** The queried domain is assumed to be drawn from a known candidate set of *N* domains (N = 100 in our headline experiments). The adversary predicts the domain label.
+- **Closed-world:** The queried domain is assumed to be drawn from a known candidate set of *N* domains (N = 99 for Global and 79 for India). The adversary predicts the domain label.
 - **Open-world:** The queried domain may or may not belong to a known monitored set. The adversary must both detect whether the domain is monitored and identify it.
 
 **Threat scenario.** This model is relevant to ISP-level surveillance, censorship enforcement that relies on DNS monitoring, and privacy analysis of encrypted DNS deployments. It is also relevant to adversaries who wish to correlate DNS queries with side-channel-inferred browsing behaviour.
@@ -110,7 +110,7 @@ Each resolver is queried over both DoH (HTTP/2 over TLS/TCP) and DoH/3 (HTTP/3 o
 - **Global top-100:** 100 domains from the Tranco global top-1M list.
 - **India top-100:** 100 domains from the Tranco India-regional top list.
 
-One domain (`trbcdn.net`) was dropped from the Cloudflare DoH global slice due to anomalous capture behaviour, leaving 99 domains for that slice.
+The headline analysis retains 99 Global and 79 India domains with at least 10 successful repeats in all eight resolver × protocol slices during repeats 8–19. Each slice uses exactly 10 repeats per domain.
 
 **Capture protocol.** Each domain is queried 20 times per resolver–protocol combination (repeats 0–19). Repeats 0–7 constitute a pilot collection window; repeats 8–19 constitute the headline (T0) collection window. Packet captures (PCAPs) are recorded for each query and processed offline into feature vectors.
 
@@ -161,17 +161,17 @@ We additionally evaluate:
 
 ### 4.5 Evaluation Protocol
 
-**Leave-repeat-out split.** For the headline evaluation, we use repeats 8–17 for training and repeats 18–19 for testing. This ensures that the model is evaluated on held-out query instances not seen during training, while controlling for temporal ordering.
+**Leave-repeat-out split.** The run metadata specifies five folds with two repeats held out per fold. The evaluator pairs the 11–12 distinct repeat IDs retained across domains in each slice, yielding six folds in all 16 slices.
 
 **Closed-world metric.** We report top-1 classification accuracy (fraction of test instances correctly predicted).
 
 **Wilson 95% confidence intervals.** We compute Wilson score intervals on the accuracy estimate.
 
-**Permutation test.** For each experimental slice, we conduct 200 label-permutation tests (randomly shuffling domain labels in the test set) to obtain an empirical null distribution of accuracy under chance. We report p-values as the fraction of permutations achieving accuracy ≥ observed; all reported results have p < 0.005.
+**Permutation test.** The observed fit uses 100 trees and the null fit uses 50. None of the 200 label permutations matched the observed accuracy in any headline slice. The minimum corrected p-value is 1/201 (p < 0.005).
 
-**Chance baseline.** For N = 100 domains, the chance accuracy is 1/100 = 0.010.
+**Chance baseline.** Chance accuracy is 1.01% for Global and 1.27% for India.
 
-**Domain selection (k=10).** For the headline results, we retain only domains with at least k = 10 headline repeats (8–19), yielding up to 100 domains per slice. All 16 headline slices use k = 10.
+**Domain selection (k=10).** The headline analysis retains 99 Global and 79 India domains with at least 10 successful repeats in all eight resolver × protocol slices during repeats 8–19. Each slice uses exactly 10 repeats per domain.
 
 **Open-world evaluation.** We use a one-vs-rest detection approach: the RF classifier scores each test flow against monitored classes; flows with max score below a threshold are classified as "unmonitored." We report TPR at FPR ≤ 5%.
 
@@ -185,45 +185,45 @@ We additionally evaluate:
 
 ### 5.1 Headline Closed-World Fingerprinting
 
-Table 1 presents the headline fingerprinting accuracy for all 16 resolver–protocol–workload slices. All results are significant at p < 0.005 (200-permutation test). Chance accuracy at 100 classes is 0.010.
+Table 1 presents the headline fingerprinting accuracy for all 16 resolver–protocol–workload slices. All results are significant at p < 0.005 (200-permutation test). Chance accuracy is 1.01% for Global and 1.27% for India.
 
 **Table 1: Headline closed-world fingerprinting accuracy (Airtel, k=10, leave-repeat-out). All p < 0.005.**
 
 | Resolver   | Protocol | Workload | Accuracy | 95% CI          | Chance |
 |------------|----------|----------|----------|-----------------|--------|
-| AdGuard    | DoH      | Global   | 0.262    | [0.229, 0.283]  | 0.010  |
-| AdGuard    | DoH/3    | Global   | 0.089    | [0.075, 0.110]  | 0.010  |
-| Cloudflare | DoH      | Global   | 0.236    | [0.213, 0.266]  | 0.010  |
-| Cloudflare | DoH/3    | Global   | 0.060    | [0.046, 0.075]  | 0.010  |
-| Google     | DoH      | Global   | 0.175    | [0.147, 0.193]  | 0.010  |
-| Google     | DoH/3    | Global   | 0.169    | [0.146, 0.192]  | 0.010  |
-| Quad9      | DoH      | Global   | 0.342    | [0.326, 0.385]  | 0.010  |
-| Quad9      | DoH/3    | Global   | 0.046    | [0.041, 0.069]  | 0.010  |
-| AdGuard    | DoH      | India    | 0.233    | [0.200, 0.255]  | 0.010  |
-| AdGuard    | DoH/3    | India    | 0.092    | [0.074, 0.113]  | 0.010  |
-| Cloudflare | DoH      | India    | 0.195    | [0.161, 0.209]  | 0.010  |
-| Cloudflare | DoH/3    | India    | 0.053    | [0.041, 0.069]  | 0.010  |
-| Google     | DoH      | India    | 0.148    | [0.123, 0.166]  | 0.010  |
-| Google     | DoH/3    | India    | 0.101    | [0.087, 0.124]  | 0.010  |
-| Quad9      | DoH      | India    | 0.310    | [0.290, 0.348]  | 0.010  |
-| Quad9      | DoH/3    | India    | 0.051    | [0.040, 0.068]  | 0.010  |
+| AdGuard    | DoH      | Global   | 0.270    | [0.239, 0.294]  | 0.010  |
+| AdGuard    | DoH/3    | Global   | 0.080    | [0.069, 0.104]  | 0.010  |
+| Cloudflare | DoH      | Global   | 0.212    | [0.184, 0.234]  | 0.010  |
+| Cloudflare | DoH/3    | Global   | 0.054    | [0.044, 0.073]  | 0.010  |
+| Google     | DoH      | Global   | 0.165    | [0.143, 0.189]  | 0.010  |
+| Google     | DoH/3    | Global   | 0.171    | [0.147, 0.193]  | 0.010  |
+| Quad9      | DoH      | Global   | 0.344    | [0.318, 0.378]  | 0.010  |
+| Quad9      | DoH/3    | Global   | 0.046    | [0.032, 0.058]  | 0.010  |
+| AdGuard    | DoH      | India    | 0.228    | [0.195, 0.253]  | 0.013  |
+| AdGuard    | DoH/3    | India    | 0.105    | [0.087, 0.130]  | 0.013  |
+| Cloudflare | DoH      | India    | 0.215    | [0.186, 0.243]  | 0.013  |
+| Cloudflare | DoH/3    | India    | 0.060    | [0.053, 0.088]  | 0.013  |
+| Google     | DoH      | India    | 0.161    | [0.130, 0.180]  | 0.013  |
+| Google     | DoH/3    | India    | 0.141    | [0.123, 0.172]  | 0.013  |
+| Quad9      | DoH      | India    | 0.357    | [0.322, 0.388]  | 0.013  |
+| Quad9      | DoH/3    | India    | 0.052    | [0.033, 0.062]  | 0.013  |
 
 > [!NOTE]
-> Cloudflare DoH Global uses 99 domains; `trbcdn.net` was dropped due to anomalous capture behaviour. All other slices use 100 domains.
+> Using per-slice domain sets instead of the shared set changed accuracy by at most 1 point for Global and 4.4 points for India, and did not change any resolver ranking.
 
 **Key observations:**
 
-1. **All 16 slices significantly above chance.** Every resolver–protocol–workload combination achieves accuracy well above the 0.010 chance level, confirming that encrypted DNS flows — whether over HTTP/2 or QUIC — are fingerprintable from metadata alone.
+1. **All 16 slices significantly above chance.** Every resolver–protocol–workload combination achieves accuracy above its workload-specific chance level, confirming that encrypted DNS flows — whether over HTTP/2 or QUIC — are fingerprintable from metadata alone.
 
-2. **DoH (HTTP/2) consistently outperforms DoH/3 (QUIC) for three of four resolvers.** For AdGuard, Cloudflare, and Quad9, the QUIC transport reduces accuracy substantially: Quad9 drops from 0.342 to 0.046 (global) and 0.310 to 0.051 (India); Cloudflare drops from 0.236 to 0.060 and 0.195 to 0.053.
+2. **DoH (HTTP/2) consistently outperforms DoH/3 (QUIC) for three of four resolvers.** For AdGuard, Cloudflare, and Quad9, the QUIC transport reduces accuracy substantially: Quad9 drops from 0.344 to 0.046 (global) and 0.357 to 0.052 (India); Cloudflare drops from 0.212 to 0.054 and 0.215 to 0.060.
 
-3. **Google is the exception.** Google DoH/3 (0.169 global, 0.101 India) achieves accuracy close to Google DoH (0.175, 0.148). This suggests that Google's DoH/3 implementation does not substantially reduce metadata leakage relative to its HTTP/2 counterpart, possibly due to resolver-side response padding, multiplexing behaviour, or response structure.
+3. **Google is the exception.** Google DoH/3 (0.171 global, 0.141 India) achieves accuracy close to Google DoH (0.165, 0.161). This suggests that Google's DoH/3 implementation does not substantially reduce metadata leakage relative to its HTTP/2 counterpart, possibly due to resolver-side response padding, multiplexing behaviour, or response structure.
 
-4. **Quad9 DoH is the most fingerprintable.** Quad9's HTTP/2 accuracy of 0.342 (global) is the highest of any slice, suggesting that Quad9's response structure — possibly response size or timing characteristics — is particularly distinguishing.
+4. **Quad9 DoH is the most fingerprintable.** Quad9's HTTP/2 accuracy of 0.344 (global) is the highest on the Global workload, suggesting that Quad9's response structure — possibly response size or timing characteristics — is particularly distinguishing.
 
-5. **India workload accuracy is generally slightly lower than global.** This may reflect differences in CDN routing, response sizes, or domain clustering in the India list.
+5. RQ5 compares 79 India domains with 20 fixed-seed draws of 79 of the 99 Global domains. Per-resolver and per-protocol means and empirical 95% intervals across draws will be filled after the full run writes `results/airtel_shared_20261116/rq5_subsampled.csv`.
 
-6. **Accuracy is 14–34× above chance** for the best-performing slices (DoH), and 4–17× above chance for DoH/3, confirming that QUIC does not eliminate fingerprintability.
+6. **Accuracy is 13–34× above chance** for the best-performing slices (DoH), and 4–17× above chance for DoH/3, confirming that QUIC does not eliminate fingerprintability.
 
 ### 5.2 Jio Cellular Results (N1 & N8)
 
@@ -233,22 +233,24 @@ We conducted a complete 6,000-query capture matrix on a mobile cellular connecti
 
 | Workload | Resolver | Protocol | Domains | Accuracy | 95% CI | Chance | p-value |
 |---|---|---|---|---|---|---|---|
-| Global | Google | DoH | 50 | **0.153** | [0.093, 0.233] | 0.020 | 0.005 |
+| Global | Google | DoH | 50 | **0.153** | [0.093, 0.233] | 0.020 | < 0.005 |
 | Global | AdGuard | DoH | 50 | **0.041** | [0.016, 0.100] | 0.020 | 0.154 |
-| India | Google | DoH | 50 | **0.133** | [0.078, 0.210] | 0.020 | 0.005 |
+| India | Google | DoH | 50 | **0.133** | [0.078, 0.210] | 0.020 | < 0.005 |
 | India | AdGuard | DoH | 34 | **0.085** | [0.042, 0.182] | 0.029 | 0.015 |
 
 **Key Findings on Jio:**
 
-1. **Cellular Fingerprintability:** Google DoH achieves **0.153** accuracy on Global domains and **0.133** on Indian domains (both p = 0.005, significantly exceeding the 0.020 chance baseline by ~7–8×). AdGuard DoH achieves 0.085 on Indian domains (p = 0.015).
+1. **Cellular Fingerprintability:** Google DoH achieves **0.153** accuracy on Global domains and **0.133** on Indian domains (both p < 0.005, significantly exceeding the 0.020 chance baseline by ~7–8×). AdGuard DoH achieves 0.085 on Indian domains (p = 0.015).
 2. **Carrier-Level QUIC Blocking (N8):** Across all 3,000 DoH/3 capture attempts on Jio, **100% of QUIC (UDP port 443) traffic timed out and failed** (`udp_blocked_flag=true`). Reliance Jio actively drops or filters outbound UDP 443 on its cellular gateway, preventing DoH/3 from functioning and demonstrating that transport adoption is strictly gated by cellular carrier middleboxes.
 3. **Resolver Edge Routing Disparities:** Google DoH achieved a 100% completion rate (1,000/1,000 ok), and AdGuard achieved 90.5% (905/1,000 ok). In contrast, Cloudflare DoH on Jio mobile cellular experienced severe routing drops to Cloudflare anycast POPs (only 15/1,000 completed), illustrating that DNS privacy protocols depend heavily on carrier routing stability.
 
 ### 5.3 Cross-Network Analysis (N2–N4)
 
-We evaluate whether fingerprint models generalize across different access networks by performing cross-network transfer and pooled multi-network training between Airtel (broadband) and Jio (cellular) on the identical 50-domain shared workload.
+N2 and N3 intersected observed DoH domains per resolver and workload. N2 reports 50 Global domains for each resolver, 50 India domains for Google and 34 for AdGuard. Neither analysis enforced the Airtel eight-slice shared set intersected with Jio survivors. Matched-domain RQ4 results are pending.
 
-**Table 3: Cross-network transfer between Airtel and Jio (50 shared domains, k=10).**
+Tables 3 and 4 summarize the historical per-slice intersections.
+
+**Table 3: Cross-network transfer between Airtel and Jio (historical per-slice intersections, k=10).**
 
 | Workload | Resolver | Direction | Shared Domains | Accuracy | 95% CI | Chance |
 |---|---|---|---|---|---|---|
@@ -266,7 +268,7 @@ We evaluate whether fingerprint models generalize across different access networ
 | Workload | Resolver | Test Vantage Point | Pooled Train Size | Held-Out Test Size | Accuracy | 95% CI | Chance |
 |---|---|---|---|---|---|---|---|
 | Global | Google | Airtel (held-out) | 900 | 100 | **0.187** | [0.125, 0.278] | 0.020 |
-| Global | Google | Jio (held-out) | 900 | 100 | **0.160** | [0.101, 0.244] | 0.020 |
+| Global | Google | Jio (held-out) | 900 | 100 | **0.160** | [0.141, 0.244] | 0.020 |
 | Global | Google | Combined (held-out) | 900 | 200 | **0.173** | [0.129, 0.234] | 0.020 |
 | India | Google | Airtel (held-out) | 899 | 100 | **0.207** | [0.142, 0.300] | 0.020 |
 | India | Google | Jio (held-out) | 899 | 100 | **0.140** | [0.085, 0.221] | 0.020 |
@@ -274,9 +276,9 @@ We evaluate whether fingerprint models generalize across different access networ
 
 **Key Findings on Cross-Network Effects:**
 
-1. **Zero Out-of-the-Box Cross-Network Generalization (N2):** When trained on Airtel and tested on Jio (or vice versa), accuracy collapses to between 0.016 and 0.024—indistinguishable from the 0.020 chance baseline. Models trained on one ISP cannot identify domains on a different ISP without adaptation.
-2. **Feature Distribution Shift (N4):** Kolmogorov-Smirnov tests reveal that cellular access networks introduce massive distribution shifts in flow timing and packet counts. Mean time-to-first-downstream (`t_first_down`) and inter-arrival times (`iat_max`, `iat_std`) shifted by over 75–88% ($p < 10^{-6}$), altering the flow profile observed by the classifier.
-3. **Pooled Training Recovers Discriminative Power (N3):** When training data is pooled across both Airtel and Jio (Table 4), the classifier successfully recovers 0.160–0.207 accuracy on held-out test repeats across both networks. An attacker with distributed vantage points across multiple consumer ISPs can thus train robust multi-network fingerprinting models.
+1. **Historical transfer (N2):** Accuracy ranged from 0.016 to 0.024 on per-slice intersections.
+2. **Feature distribution shift (N4):** The Jio driver intersected observed Google DoH domains across workloads. The KU4 report used fixed Jio statistics without enforcing the shared-domain intersection.
+3. **Historical pooled training (N3):** Accuracy ranged from 0.160 to 0.207 on the archived per-slice sets.
 
 ### 5.4 Feature Comparison (WP7)
 
@@ -314,11 +316,11 @@ We evaluate two sequence-to-label deep learning architectures on the normalised 
 
 | Model | Accuracy |
 |-------|----------|
-| RF (baseline, all features) | 0.262 |
+| RF (baseline, all features) | 0.270 |
 | CNN (pkt sequence) | 0.010 |
 | GRU (pkt sequence) | 0.014 |
 
-**Finding.** CNN and GRU models perform at or near chance (0.010–0.014) compared to the RF baseline at 0.262. This result mirrors the n-gram finding: raw packet sequences, truncated to 20 packets, do not carry sufficient discriminative information for sequence models to learn meaningful patterns. The RF's ability to leverage aggregate statistics — particularly burst and IAT features — across the full flow provides a decisive advantage.
+**Finding.** CNN and GRU models perform at or near chance (0.010–0.014) compared to the shared-run RF baseline at 0.270. This result mirrors the n-gram finding: raw packet sequences, truncated to 20 packets, do not carry sufficient discriminative information for sequence models to learn meaningful patterns. The RF's ability to leverage aggregate statistics — particularly burst and IAT features — across the full flow provides a decisive advantage.
 
 This finding has practical implications: an adversary with access only to the first 20 packets and no aggregate statistics would have very limited fingerprinting power. The aggregate features that drive RF performance (total bytes, IATs, burst counts) require observing the complete flow or at least a substantial prefix of it.
 
@@ -339,7 +341,7 @@ We evaluate an open-world scenario in which the adversary monitors a subset of d
 
 We examine how accuracy varies with the number of training repeats and the number of domains.
 
-**Effect of training repeats.** Accuracy generally increases as more training repeats are available. With only 4 repeats and 10 domains, accuracy ranges from approximately 0.2 to 0.5 depending on the resolver–protocol slice. With 10 repeats and 100 domains, accuracy converges to the headline numbers reported in Table 1.
+**Effect of training repeats.** Accuracy generally increases as more training repeats are available. With only 4 repeats and 10 domains, accuracy ranges from approximately 0.2 to 0.5 depending on the resolver–protocol slice. Table 1 uses the shared domains and exactly 10 repeats.
 
 **Effect of domain count.** Accuracy is non-monotone with domain count. Performance is highest for small domain sets (10 domains) and decreases as the problem scales to 50–100 domains, reflecting the increased difficulty of the classification task. The relationship is not strictly monotone: intermediate domain counts (25–50) sometimes show non-uniform accuracy, possibly due to domain clustering or class imbalance in the balanced-subsample RF.
 
@@ -399,9 +401,9 @@ The effectiveness of constant-rate padding — but not random padding — reflec
 
 ### 6.1 Does QUIC Help?
 
-For AdGuard, Cloudflare, and Quad9, the QUIC transport substantially reduces fingerprinting accuracy. The most dramatic example is Quad9: DoH accuracy of 0.342 (global) falls to 0.046 for DoH/3, nearly at the chance level. The likely mechanism is that QUIC's packet-level framing differs from TCP+TLS: QUIC may coalesce multiple DNS messages into fewer datagrams, vary datagram sizes due to connection-ID overhead, or change the timing profile of responses. These structural differences reduce the discriminative power of features that are highly informative over TCP+TLS (e.g., downstream packet counts and byte distributions).
+For AdGuard, Cloudflare, and Quad9, the QUIC transport substantially reduces fingerprinting accuracy. The most dramatic example is Quad9: DoH accuracy of 0.344 (global) falls to 0.046 for DoH/3, nearly at the chance level. The likely mechanism is that QUIC's packet-level framing differs from TCP+TLS: QUIC may coalesce multiple DNS messages into fewer datagrams, vary datagram sizes due to connection-ID overhead, or change the timing profile of responses. These structural differences reduce the discriminative power of features that are highly informative over TCP+TLS (e.g., downstream packet counts and byte distributions).
 
-However, QUIC does not eliminate fingerprinting. Even the most privacy-preserving slice (Quad9 DoH/3 India: 0.051) is still 5× above chance. For Google, QUIC provides almost no privacy benefit: DoH/3 accuracy (0.169) is essentially equal to DoH accuracy (0.175) for the global workload. This suggests that Google's QUIC implementation does not materially alter the metadata profile of DNS responses, possibly because Google applies padding or response structure that also normalises HTTP/2 responses.
+However, QUIC does not eliminate fingerprinting. Even the most privacy-preserving slice (Quad9 DoH/3 Global: 0.046) is still 5× above chance. For Google, QUIC provides almost no privacy benefit: DoH/3 accuracy (0.171) is essentially equal to DoH accuracy (0.165) for the global workload. This suggests that Google's QUIC implementation does not materially alter the metadata profile of DNS responses, possibly because Google applies padding or response structure that also normalises HTTP/2 responses.
 
 ### 6.2 Resolver Choice Matters
 
@@ -425,13 +427,15 @@ Our study is conducted from an Indian ISP vantage point, reflecting routing cond
 
 We identify the following limitations of this study:
 
-1. **Single client and ISP (Airtel only, Jio pending).** All Airtel results derive from a single client machine on the Airtel network. Network-path diversity, ISP-specific middlebox behaviour, and multi-client variability are not captured. Jio data is pending and will be incorporated in future work.
+1. **Network + machine confound.** Each network was measured from a different laptop, so cross-network results combine network and machine effects.
+
+The proposal also named college WiFi as a third access network. It was not measured, because of time. Network results therefore cover two carriers (Airtel and Jio). We did not test an institutional network, where UDP/QUIC filtering or DNS interception could change DoH/3 behaviour.
 
 2. **Single DNS client implementation.** We use `q` v0.19.12 exclusively. Different DoH/DoH/3 clients (e.g., curl, Unbound, Firefox's built-in resolver) may generate different traffic patterns, affecting feature distributions and classifier accuracy.
 
 3. **Single-lookup traces.** Each flow corresponds to a single DNS query for a single domain. Real browsing generates cascades of DNS queries for a single page load. Our single-query setting may overestimate or underestimate fingerprintability in the page-load context.
 
-4. **Domain list scope.** We evaluate 100 global and 100 Indian domains. Real-world candidate sets may be much larger (thousands to millions of domains), and accuracy at that scale is unknown.
+4. **Domain list scope.** The headline analysis retains 99 Global and 79 India domains with at least 10 successful repeats in all eight resolver × protocol slices during repeats 8–19. Each slice uses exactly 10 repeats per domain. Persistently failing domains were excluded, so the surviving domains skew toward faster-resolving ones. Real-world candidate sets may be much larger (thousands to millions of domains), and accuracy at that scale is unknown.
 
 5. **EDNS0 padding observability.** Our live checks use `q`'s JSON output, which may not expose EDNS0 padding option fields. The absence of observed padding does not conclusively prove that padding is absent at the PCAP level. This is a measurement limitation, not a confirmed protocol finding.
 
@@ -476,7 +480,7 @@ We identify the following limitations of this study:
 We have presented the first systematic comparison of DoH (HTTP/2) and DoH/3 (QUIC) fingerprintability across four public resolvers, two domain workloads, and an Indian ISP (Airtel) vantage point. Using Random Forest classification on packet-level and flow-level metadata features, with rigorous leave-repeat-out evaluation and permutation-test significance analysis, we find:
 
 - **All 16 resolver–protocol–workload slices are significantly fingerprintable** (p < 0.005), confirming that encrypted DNS does not eliminate metadata leakage.
-- **QUIC substantially reduces fingerprintability for AdGuard, Cloudflare, and Quad9**, with the most dramatic reductions for Quad9 (0.342 → 0.046 on global workload). **Google DoH/3 is a notable exception**, achieving accuracy essentially equal to its DoH counterpart.
+- **QUIC substantially reduces fingerprintability for AdGuard, Cloudflare, and Quad9**, with the most dramatic reductions for Quad9 (0.344 → 0.046 on global workload). **Google DoH/3 is a notable exception**, achieving accuracy essentially equal to its DoH counterpart.
 - **Aggregate flow features (byte totals, IATs, burst statistics) dramatically outperform** packet-sequence models (n-grams, CNN, GRU), which perform near chance.
 - **Cross-session accuracy is low (0.04–0.11)**, suggesting that fingerprints degrade across collection windows and that a real-world adversary would need fresh training data.
 - **Constant-rate padding offers modest defence** (accuracy reduction from ≈0.20 to ≈0.14 in simulation); random padding and delay jitter are largely ineffective.

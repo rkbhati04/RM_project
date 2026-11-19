@@ -55,8 +55,8 @@
 - **Zero Label Leakage Guarantee:**
   - IP addresses, port numbers, transport headers, and domain names are **strictly excluded** from feature sets.
 - **Rigorous Evaluation Controls:**
-  - Leave-repeat-out temporal cross-validation (train on early repeats, test on held-out repeats).
-  - 200 label-permutation baseline tests to establish empirical significance ($p < 0.005$).
+  - The headline analysis retains 99 Global and 79 India domains with at least 10 successful repeats in all eight resolver × protocol slices during repeats 8–19. Each slice uses exactly 10 repeats per domain. The run metadata specifies five folds with two repeats held out per fold. The evaluator pairs the 11–12 distinct repeat IDs retained across domains in each slice, yielding six folds in all 16 slices.
+  - 200 label-permutation (100-tree observed fit, 50-tree null) baseline tests to establish empirical significance ($p < 0.005$).
   - 95% Wilson score confidence intervals reported for all claims.
 
 ### 🎙️ Speaker Script (1:15 min)
@@ -64,7 +64,7 @@
 > 
 > Our adversary is strictly passive. They cannot decrypt payloads, inject packets, or inspect IP addresses and port numbers. To prevent trivial shortcuts, every IP address and port number is stripped before feature extraction. The classifier only learns from physical flow silhouettes: packet sizes, directions, and timing.
 > 
-> Second, to eliminate temporal memorization, we enforce leave-repeat-out cross-validation: we train on earlier repeats and evaluate on held-out repeats captured hours later. Finally, every accuracy number is paired with a 200-iteration label permutation test to confirm that performance reflects genuine privacy leakage rather than chance or class imbalance."
+> Second, to eliminate temporal memorization, we enforce leave-repeat-out cross-validation: each fold holds out a pair of repeat IDs. Finally, every accuracy number is paired with a 200-iteration label permutation test to confirm that performance reflects genuine privacy leakage rather than chance or class imbalance."
 
 ---
 
@@ -112,11 +112,11 @@
 
 ### [Slide Layout]
 - **Figure:** `results/figures/fig1_headline_doh_vs_doh3.png`
-- **Results Summary (Airtel Broadband, k=10, 100 classes, Chance = 1.0%):**
-  - **AdGuard:** DoH = 26.2% $\rightarrow$ DoH/3 = **8.9%** (66% leakage reduction)
-  - **Cloudflare:** DoH = 23.6% $\rightarrow$ DoH/3 = **6.0%** (75% leakage reduction)
-  - **Quad9:** DoH = 34.2% $\rightarrow$ DoH/3 = **4.6%** (86% leakage reduction)
-  - **Google:** DoH = 17.5% $\rightarrow$ DoH/3 = **16.9%** (No reduction!)
+- **Results Summary (Airtel Broadband, Global, k=10, 99 classes, Chance = 1.01%):**
+  - **AdGuard:** DoH = 27.0% $\rightarrow$ DoH/3 = **8.0%** (70% leakage reduction)
+  - **Cloudflare:** DoH = 21.2% $\rightarrow$ DoH/3 = **5.4%** (75% leakage reduction)
+  - **Quad9:** DoH = 34.4% $\rightarrow$ DoH/3 = **4.6%** (86% leakage reduction)
+  - **Google:** DoH = 16.5% $\rightarrow$ DoH/3 = **17.1%** (about equal)
 - **Key Insight:** QUIC reduces leakage for 3 out of 4 resolvers, but Google DoH/3 remains equally fingerprintable.
 
 ```
@@ -128,11 +128,11 @@
 ### 🎙️ Speaker Script (1:30 min)
 > "Here we come to our headline empirical finding on Slide 6: Does DoH/3 improve privacy over standard DoH?
 > 
-> Looking at the figure, you can see a striking pattern. For AdGuard, Cloudflare, and Quad9, switching from DoH to DoH/3 reduces fingerprinting accuracy dramatically. On Quad9, accuracy drops from 34.2% down to 4.6%. On Cloudflare, it drops from 23.6% to 6.0%. 
+> Looking at the figure, you can see a striking pattern. For AdGuard, Cloudflare, and Quad9, switching from DoH to DoH/3 reduces fingerprinting accuracy dramatically. On Quad9, accuracy drops from 34.4% down to 4.6%. On Cloudflare, it drops from 21.2% to 5.4%.
 > 
 > Why? Because HTTP/3's control stream multiplexing, variable-length integer encoding, and unified transport-layer ACKs act as inherent traffic obfuscation.
 > 
-> However, look at Google: Google DoH achieves 17.5% accuracy, and Google DoH/3 achieves 16.9%—virtually no reduction! This reveals that QUIC is not an automatic privacy panacea. Google's server-side response structuring and lack of dynamic padding allow domain-specific response sizes to shine directly through QUIC."
+> However, look at Google: Google DoH achieves 16.5% accuracy, and Google DoH/3 achieves 17.1%—virtually no reduction! This reveals that QUIC is not an automatic privacy panacea. Google's server-side response structuring and lack of dynamic padding allow domain-specific response sizes to shine directly through QUIC."
 
 ---
 
@@ -140,13 +140,13 @@
 
 ### [Slide Layout]
 - **Feature Importance & Ablation (WP7):**
-  - Full Aggregate Feature Set: **20.4% – 26.2% accuracy**
+  - Full Aggregate Feature Set: **20.4% – 27.0% accuracy**
   - Packet-Size N-grams alone: **1.5% accuracy**
   - Post-Handshake N-grams alone: **1.5% accuracy**
 - **Deep Learning Comparison (WP8):**
   - 1D-CNN on packet sequence: **1.0% accuracy** (chance)
   - 2-layer GRU on packet sequence: **1.4% accuracy** (chance)
-  - Random Forest on flow aggregates: **26.2% accuracy**
+  - Random Forest on flow aggregates: **27.0% accuracy**
 - **Takeaway:** DNS flows are short (<40 packets); sequence models fail, while aggregate burst volume and IAT distributions carry the discriminative signal.
 
 ### 🎙️ Speaker Script (1:15 min)
@@ -154,25 +154,26 @@
 > 
 > In conventional website fingerprinting, researchers often use deep sequence models like CNNs or LSTMs on packet-direction sequences. But when we trained 1D-CNN and GRU models on raw DNS packet sequences, they completely failed—achieving only 1.0% to 1.4% accuracy, essentially random guessing.
 > 
-> In contrast, Random Forest utilizing aggregate flow features—burst byte volumes, downstream-to-upstream byte ratios, and inter-arrival time distributions—achieved 26.2%. Because DNS exchanges are extremely short (typically 20 to 35 packets total), temporal sequence models suffer from insufficient tokens, whereas overall flow statistics capture the exact response payload size."
+> In contrast, Random Forest utilizing aggregate flow features—burst byte volumes, downstream-to-upstream byte ratios, and inter-arrival time distributions—achieved 27.0%. Because DNS exchanges are extremely short (typically 20 to 35 packets total), temporal sequence models suffer from insufficient tokens, whereas overall flow statistics capture the exact response payload size."
 
 ---
 
-## Slide 8: RQ4 — Cross-Network Generalization (Airtel vs. Jio)
+## Slide 8: RQ4 — Cross-Network Generalization (Airtel vs Jio)
 
 ### [Slide Layout]
-- **Figure:** `results/figures/fig2_cross_network_transfer.png`
-- **Experimental Setup:** Evaluate identical 50 shared domains on Airtel broadband vs. Reliance Jio cellular.
+- **Historical results:** N2 per-slice transfer estimates
+- **Experimental Setup:** Historical transfer estimates use per-slice intersections.
 - **Empirical Findings:**
-  - **Within-Jio Fingerprinting:** Google DoH achieves **15.3%** (Global) and **13.3%** (India) (p = 0.005, vs 2.0% chance).
+- N2 and N3 intersected observed DoH domains per resolver and workload. N2 reports 50 Global domains for each resolver, 50 India domains for Google and 34 for AdGuard. Neither analysis enforced the Airtel eight-slice shared set intersected with Jio survivors. Matched-domain RQ4 results are pending. Each network was measured from a different laptop, so cross-network results combine network and machine effects.
+  - **Within-Jio Fingerprinting:** Google DoH achieves **15.3%** (Global) and **13.3%** (India) (p < 0.005, vs 2.0% chance).
   - **Cross-Network Transfer:**
     - Airtel $\rightarrow$ Jio: **1.7% accuracy** (Below chance!)
     - Jio $\rightarrow$ Airtel: **1.9% accuracy** (Below chance!)
-- **Takeaway:** Encrypted DNS fingerprints do **NOT** generalize across different network carriers out-of-the-box.
+- **Takeaway:** RQ4 remains pending on the intersection of the Airtel shared domains and Jio survivors.
 
 ```
 +--------------------------------------------------------------------------+
-|  [ Embed: results/figures/fig2_cross_network_transfer.png ]              |
+|  Archived N2 per-slice transfer estimates                               |
 +--------------------------------------------------------------------------+
 ```
 
@@ -181,9 +182,9 @@
 > 
 > When we train and test within Jio cellular, fingerprinting succeeds with statistical significance: Google DoH achieves 15.3% on Global domains and 13.3% on Indian domains, well above the 2.0% chance level.
 > 
-> But look at what happens during cross-network transfer: when a model trained on Airtel broadband is deployed against Jio cellular traffic, accuracy completely collapses to 1.7%—literally at or below random chance! The same collapse occurs in reverse when testing Jio models on Airtel.
+> On the historical per-slice sets, transfer accuracy was near chance in both directions. The shared-domain comparison remains open.
 > 
-> This is a crucial finding for the research community: laboratory evaluations conducted on a single broadband ISP vastly overestimate an attacker's real-world capability against mobile cellular users."
+> Each network used a different laptop, so the comparison combines machine and network effects."
 
 ---
 
@@ -191,10 +192,10 @@
 
 ### [Slide Layout]
 - **Figure:** `results/figures/fig4_feature_distribution_shift.png`
-- **Why Does Transfer Fail? (Kolmogorov-Smirnov Shift):**
+- **Historical N4 feature shifts (unmatched domains, fixed Jio statistics):**
   - Cellular physical layer framing changes maximum packet sizes (`up_max`, `down_max`, $D = 1.00$).
   - Cellular latency shifts flow timing (`t_first_down`, `iat_max`, `iat_std` shifted by **75%–88%**, $p < 10^{-6}$).
-- **The Attacker's Countermeasure (Pooled Training):**
+- **Historical pooled training on per-slice intersections:**
   - Pooling Airtel + Jio training data restores accuracy to **16.0% – 20.7%** on held-out test sets across both networks.
 - **Implication:** Multi-homed adversaries observing multiple ISPs can defeat carrier-level variance.
 
@@ -205,7 +206,7 @@
 ```
 
 ### 🎙️ Speaker Script (1:15 min)
-> "Why does cross-network transfer collapse? Slide 9 illustrates the Kolmogorov-Smirnov distribution shift between Airtel and Jio.
+> "Slide 9 summarizes historical N4 statistics. The comparison did not use the required domain intersection.
 > 
 > Cellular access networks introduce dramatic physical-layer perturbations. 4G/5G radio scheduling, cellular MTU clamping, and radio-link queuing shift inter-arrival times and response latencies by over 75% to 88%. This completely distorts the timing envelope learned on fixed broadband.
 > 
@@ -265,9 +266,13 @@
 ## Slide 12: Conclusions & Recommendations
 
 ### [Slide Layout]
+Persistently failing domains were excluded, so the surviving domains skew toward faster-resolving ones. Each carrier was measured from a different laptop.
+
+The proposal also named college WiFi as a third access network. It was not measured, because of time. Network results therefore cover two carriers (Airtel and Jio). We did not test an institutional network, where UDP/QUIC filtering or DNS interception could change DoH/3 behaviour.
+
 - **Core Conclusions:**
   1. **DoH/3 provides substantial privacy gains on 3 out of 4 resolvers**, but implementation differences (Google) can negate these benefits.
-  2. **Access networks act as natural privacy barriers:** Models trained on one carrier experience total collapse when transferred to another without multi-vantage adaptation.
+  2. **Access networks:** RQ4 remains pending on the intersection of the Airtel shared domains and Jio survivors.
   3. **Carrier middleboxes gate adoption:** Reliance Jio's complete blocking of UDP 443 prevents DoH/3 deployment for millions of cellular users.
 - **Actionable Recommendations:**
   - **IETF & Standards:** Mandate standardized constant-block response padding (minimum 128 bytes) across both HTTP/2 and HTTP/3.

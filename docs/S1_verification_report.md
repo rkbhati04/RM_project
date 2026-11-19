@@ -1,5 +1,9 @@
 # S1 Verification Audit Report (Round 1)
 
+## Shared-domain ledger check (2026-11-19)
+
+The verifier matched 5 of 16 claims. It searched the first results file named `rq1_rq2_fingerprinting.csv` and flagged FP-5 through FP-13, FP-15 and FP-16. Direct row-by-row comparison against `results/airtel_shared_20261116/rq1_rq2_fingerprinting.csv` matched all 16 accuracy values and both interval bounds. Leakage and disclosure checks passed. The certification below describes the earlier audit.
+
 **Audit Date:** 2026-11-14  
 **Task ID:** S1 (Mutual Verification Round 1)  
 **Status:** **PASSED (100% Mathematical & Integrity Compliance)**  

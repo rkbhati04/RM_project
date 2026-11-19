@@ -3,8 +3,8 @@
 **Paper Section Draft for Team Submission**  
 **Author:** Kunal (Lead Author for Experimental Results & Discussion)  
 **Date:** 2026-11-14  
-**Data Sources:** `results/airtel_final_20261111/`, `results/wp7_richer_features/`, `results/wp8_deep_learning/`, `results/wp9_open_world/`, `results/wp10_scaling_curves/`, `results/wp11_time_stability/`, `results/wp13_defenses/`  
-**Ledger Verification:** All empirical numbers strictly match [`docs/claims_ledger.csv`](docs/claims_ledger.csv)  
+**Data Sources:** `results/airtel_shared_20261116/`, `results/wp7_richer_features/`, `results/wp8_deep_learning/`, `results/wp9_open_world/`, `results/wp10_scaling_curves/`, `results/wp11_time_stability/`, `results/wp13_defenses/`  
+**Ledger Verification:** The 16 headline accuracies and interval bounds match [`docs/claims_ledger.csv`](claims_ledger.csv)  
 **Reference:** `docs/issues/KU6.md`, `docs/TEAM_PLAN.md`, `docs/METHODOLOGY.md`
 
 ---
@@ -13,7 +13,7 @@
 
 We evaluate side-channel traffic analysis resistance across encrypted DNS protocols (**DoH over HTTP/2** and **DoH/3 over HTTP/3**) under controlled testbed conditions on a real consumer cellular access network (Airtel). All evaluations enforce strict zero-label-leakage controls: IP addresses, transport ports (443 vs. 853), URLs, and domain strings are entirely excluded from feature vectors. Features consist strictly of packet sizes, directional byte ratios, inter-arrival times (IAT), burst counts, and signed packet sequences ($pkt_{00}$–$pkt_{19}$).
 
-Unless otherwise noted, headline results are computed on the primary 100-domain closed-world datasets using 5 grouped folds with 2 repeats held out per fold, evaluated with 100-tree Random Forest ensembles, 95% Wilson confidence intervals, and empirical label-permutation significance testing ($p < 0.05$).
+The headline analysis retains 99 Global and 79 India domains with at least 10 successful repeats in all eight resolver × protocol slices during repeats 8–19. Each slice uses exactly 10 repeats per domain. The run metadata specifies five folds with two repeats held out per fold. The evaluator pairs the 11–12 distinct repeat IDs retained across domains in each slice, yielding six folds in all 16 slices. The observed fit uses 100 trees and the null fit uses 50. None of the 200 label permutations matched the observed accuracy in any headline slice. The minimum corrected p-value is 1/201 (p < 0.005).
 
 ---
 
@@ -23,19 +23,21 @@ Our initial baseline evaluates closed-world domain fingerprinting across four ma
 
 | Resolver | Protocol | Domains ($N$) | Repeats ($k$) | Accuracy | 95% Wilson CI | Top-5 Accuracy | Macro-F1 | Chance ($1/N$) |
 |---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **AdGuard** | DoH | 100 | 10 | **27.93%** | [25.31%, 30.86%] | 53.63% | 0.2692 | 1.00% |
-| | DoH/3 | 100 | 10 | **8.03%** | [6.75%, 10.17%] | 22.17% | 0.0744 | 1.00% |
+| **AdGuard** | DoH | 99 | 10 | **26.97%** | [23.91%, 29.40%] | 54.28% | 0.2597 | 1.01% |
+| | DoH/3 | 99 | 10 | **8.01%** | [6.91%, 10.39%] | 21.92% | 0.0747 | 1.01% |
 | **Cloudflare**| DoH | 99 | 10 | **21.25%** | [18.39%, 23.45%] | 49.09% | 0.2061 | 1.01% |
 | | DoH/3 | 99 | 10 | **5.35%** | [4.38%, 7.27%] | 18.82% | 0.0475 | 1.01% |
-| **Google** | DoH | 100 | 10 | **16.93%** | [15.18%, 19.87%] | 42.30% | 0.1635 | 1.00% |
-| | DoH/3 | 100 | 10 | **16.87%** | [14.14%, 18.72%] | 39.90% | 0.1631 | 1.00% |
-| **Quad9** | DoH | 100 | 10 | **34.73%** | [31.42%, 37.30%] | 69.23% | 0.3406 | 1.00% |
-| | DoH/3 | 100 | 10 | **4.07%** | [2.70%, 5.06%] | 13.27% | 0.0391 | 1.00% |
+| **Google** | DoH | 99 | 10 | **16.53%** | [14.28%, 18.90%] | 42.39% | 0.1579 | 1.01% |
+| | DoH/3 | 99 | 10 | **17.10%** | [14.67%, 19.33%] | 39.87% | 0.1649 | 1.01% |
+| **Quad9** | DoH | 99 | 10 | **34.38%** | [31.85%, 37.77%] | 69.73% | 0.3352 | 1.01% |
+| | DoH/3 | 99 | 10 | **4.65%** | [3.24%, 5.80%] | 13.20% | 0.0444 | 1.01% |
+
+Using per-slice domain sets instead of the shared set changed accuracy by at most 1 point for Global and 4.4 points for India, and did not change any resolver ranking.
 
 #### Key Findings:
-1. **The Privacy Advantage of HTTP/3:** Across AdGuard, Cloudflare, and Quad9, DoH/3 is dramatically more resistant to traffic analysis than DoH. For Quad9, moving from HTTP/2 to HTTP/3 suppresses fingerprinting accuracy by 8.5x (from 34.73% down to 4.07%). For AdGuard and Cloudflare, accuracy drops by 3.5x and 4.0x, respectively.
-2. **The Google Anomaly:** Google DNS is the sole resolver where DoH and DoH/3 show near-identical vulnerability (16.93% vs 16.87%). This parity stems from Google's highly standardized frontend edge infrastructure, which enforces uniform EDNS0 padding and standardized HTTP/2 and HTTP/3 buffer packing, dampening the accidental padding effect of QUIC frames.
-3. **Effect Over Name Length:** Baseline evaluation against length-only predictors shows that while DoH classifiers gain substantial signal over raw domain name lengths (+2.1% to +15.7%), DoH/3 classifiers exhibit negative effect-over-length (-10.9% to -14.8%), demonstrating that QUIC framing noise actively degrades length inference.
+1. **The Privacy Advantage of HTTP/3:** Across AdGuard, Cloudflare, and Quad9, DoH/3 is dramatically more resistant to traffic analysis than DoH. For Quad9, moving from HTTP/2 to HTTP/3 suppresses fingerprinting accuracy by 7.4x (from 34.38% down to 4.65%). For AdGuard and Cloudflare, accuracy drops by 3.4x and 4.0x, respectively.
+2. **The Google Anomaly:** Google DNS is the sole resolver where DoH and DoH/3 show near-identical vulnerability (16.53% vs 17.10%). This parity stems from Google's highly standardized frontend edge infrastructure, which enforces uniform EDNS0 padding and standardized HTTP/2 and HTTP/3 buffer packing, dampening the accidental padding effect of QUIC frames.
+3. **Effect Over Name Length:** On Global DoH, full-model accuracy minus length-only accuracy ranges from −2.66 points (Google) to +15.19 points (Quad9). On Global DoH/3 the difference ranges from −14.44 points (Quad9) to −2.12 points (Google).
 
 ---
 
@@ -154,7 +156,7 @@ We simulated three standardized and proposed defense strategies across extracted
 ## 5. Discussion
 
 ### 5.1 Why HTTP/3 Accidental Padding Protects Against Fingerprinting
-Our findings demonstrate that DoH/3 consistently outperforms standard DoH in side-channel resistance. This protection does not stem from enhanced cryptographic ciphers, but rather from the mechanics of the QUIC transport layer (RFC 9000) and HTTP/3 framing (RFC 9114):
+Our findings demonstrate that DoH/3 reduces fingerprintability for AdGuard, Cloudflare and Quad9, while Google shows similar accuracy under both protocols. This protection does not stem from enhanced cryptographic ciphers, but rather from the mechanics of the QUIC transport layer (RFC 9000) and HTTP/3 framing (RFC 9114):
 - **Frame Multiplexing Noise:** HTTP/3 control streams, QPACK encoder/decoder streams, and bidirectional exchange frames dynamically interleave with DNS query payloads.
 - **Dynamic Packetization:** QUIC flow control and variable-length integer encoding disrupt the rigid packet length signatures characteristic of HTTP/2 over TCP.
 - **Accidental Padding:** While not intended as a privacy defense, HTTP/3 transport metadata functions as continuous, dynamic padding that dilutes deterministic packet silhouettes.
@@ -163,6 +165,11 @@ Our findings demonstrate that DoH/3 consistently outperforms standard DoH in sid
 A key finding of this work is that stationary closed-world evaluations significantly **overestimate the real-world threat of DoH website fingerprinting**. While an adversary training and testing within the same afternoon achieves >34% accuracy on Quad9 DoH, that classifier degrades to near 2% random chance when deployed days later. For adversaries, maintaining an effective DoH surveillance pipeline requires continuous, computationally expensive re-training against live target networks.
 
 ### 5.3 Limitations
+
+Persistently failing domains were excluded, so the surviving domains skew toward faster-resolving ones. Each network was measured from a different laptop, so cross-network results combine network and machine effects.
+
+The proposal also named college WiFi as a third access network. It was not measured, because of time. Network results therefore cover two carriers (Airtel and Jio). We did not test an institutional network, where UDP/QUIC filtering or DNS interception could change DoH/3 behaviour.
+
 1. **Client Scope:** All measurements were gathered using `q` client implementation. Differences in client buffering or local caching may shift absolute feature distributions.
 2. **Single Query Traces:** This study measures isolated domain queries rather than multi-query page load waterfalls, which introduce additional multiplexing complexity.
 3. **Simulated Defenses:** Defenses in WP13 represent mathematical simulations on extracted traces rather than server-negotiated EDNS0 padding in live resolvers.
