@@ -1,0 +1,5 @@
+resolver,airtel_doh_acc,airtel_doh_ci,airtel_doh3_acc,airtel_rank,jio_doh_acc,jio_doh_ci,jio_doh3_acc,jio_rank,ranking_shift,confound
+Google,0.1693,"[0.1518, 0.1987]",0.1687,4,0.1433,"[0.0854, 0.2213]",0.0,1.0,+3 (Least vulnerable on Airtel -> Most vulnerable on Jio),network + machine
+AdGuard,0.2793,"[0.2531, 0.3086]",0.0803,2,0.0627,"[0.0289, 0.1411]",0.0,2.0,0 (Rank 2 on both; sharp absolute accuracy collapse),network + machine
+Cloudflare,0.2125,"[0.1839, 0.2345]",0.0535,3,,Unusable,0.0,,Routing collapse (98.5% query drop on Jio cellular),network + machine
+Quad9,0.3473,"[0.3142, 0.3730]",0.0407,1,,Omitted,0.0,,Omitted from cellular matrix,network + machine

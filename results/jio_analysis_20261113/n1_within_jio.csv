@@ -1,0 +1,5 @@
+workload,resolver,protocol,domains,n_train,n_test,accuracy,accuracy_sd,ci_low,ci_high,chance,p_value,confound
+global,google,doh,50,400,100,0.1533,0.0141,0.0931,0.2328,0.02,0.005,network + machine
+global,adguard,doh,50,392,98,0.0408,0.0082,0.016,0.1003,0.02,0.154,network + machine
+india,google,doh,50,400,100,0.1333,0.0125,0.0776,0.2098,0.02,0.005,network + machine
+india,adguard,doh,34,264,71,0.0846,0.0102,0.0417,0.1819,0.0294,0.015,network + machine

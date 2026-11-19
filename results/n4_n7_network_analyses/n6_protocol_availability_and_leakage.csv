@@ -1,0 +1,15 @@
+network,resolver,protocol,completion_rate,leakage_acc,status,cause,confound
+Airtel Broadband,Google,DoH (HTTP/2),0.985,0.1693,Available,Normal broadband routing,network + machine
+Airtel Broadband,Google,DoH/3 (QUIC),0.968,0.1687,Available,UDP 443 open; response structuring leaks,network + machine
+Airtel Broadband,AdGuard,DoH (HTTP/2),0.985,0.2793,Available,Normal broadband routing,network + machine
+Airtel Broadband,AdGuard,DoH/3 (QUIC),0.968,0.0803,Available,UDP 443 open; QUIC framing reduces leakage -71%,network + machine
+Airtel Broadband,Cloudflare,DoH (HTTP/2),0.985,0.2125,Available,Normal broadband routing,network + machine
+Airtel Broadband,Cloudflare,DoH/3 (QUIC),0.968,0.0535,Available,UDP 443 open; QUIC framing reduces leakage -75%,network + machine
+Airtel Broadband,Quad9,DoH (HTTP/2),0.985,0.3473,Available,Normal broadband routing,network + machine
+Airtel Broadband,Quad9,DoH/3 (QUIC),0.968,0.0407,Available,UDP 443 open; QUIC framing reduces leakage -88%,network + machine
+Jio Cellular,Google,DoH (HTTP/2),1.0,0.1433,Available,Direct edge route; robust cellular delivery,network + machine
+Jio Cellular,Google,DoH/3 (QUIC),0.0,,Carrier Blocked,Carrier middlebox drops outbound UDP 443 (100% loss),network + machine
+Jio Cellular,AdGuard,DoH (HTTP/2),0.905,0.0627,Available,Minor edge retransmission on mobile,network + machine
+Jio Cellular,AdGuard,DoH/3 (QUIC),0.0,,Carrier Blocked,Carrier middlebox drops outbound UDP 443 (100% loss),network + machine
+Jio Cellular,Cloudflare,DoH (HTTP/2),0.015,,Routing Failure,Mobile cellular anycast route collapse to POPs,network + machine
+Jio Cellular,Cloudflare,DoH/3 (QUIC),0.0,,Carrier Blocked,Carrier middlebox drops outbound UDP 443 (100% loss),network + machine

@@ -1,0 +1,6 @@
+feature_set,feature_count,accuracy,accuracy_seed_sd,ci_low,ci_high,delta_from_baseline,chance,confound
+All Features (Baseline),44,0.27,0.0141,0.1927,0.3643,0.0,0.02,network + machine
+Ablation: No Timing Features,38,0.2267,0.0047,0.1584,0.3215,-0.0433,0.02,network + machine
+Ablation: No Size/MTU Features,35,0.2233,0.0125,0.15,0.3107,-0.0467,0.02,network + machine
+Ablation: Handshake Sequence Only,20,0.21,0.0082,0.1417,0.2998,-0.06,0.02,network + machine
+Ablation: Flow Aggregates Only (No Sequence),24,0.26,0.0,0.184,0.3537,-0.01,0.02,network + machine
